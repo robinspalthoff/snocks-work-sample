@@ -1,0 +1,33 @@
+{
+  "name": "snocks-work-sample",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run generate && next dev",
+    "build": "npm run generate && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "generate": "tsx scripts/generate-data.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.77.0",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "recharts": "^3.11.0",
+    "tailwind-merge": "^3.7.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────────────────
+ * Design tokens. Bewusst nur ein (helles) Theme: die Farbwelt ist als
+ * warme Light-Palette definiert, ein Dark Mode würde die Aussage der
+ * Charts (Pink = Realität, Grau = Reported) nur verwässern.
+ * ─────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Flächen */
+  --color-background: #f2f0ea;
+  --color-card: #ffffff;
+  --color-border: #e2ddd2;
+  --color-muted: #e9e6de;
+
+  /* Text */
+  --color-foreground: #1a1a1a;
+  --color-muted-foreground: #6b6660;
+  --color-subtle-foreground: #908a80;
+
+  /* Akzent – sparsam: Realität-Linie, aktiver Nav-Eintrag, CTA */
+  --color-accent: #cc5b8b;
+  --color-accent-soft: #f6e6ee;
+  --color-accent-strong: #ab3f6d;
+
+  /* Semantik */
+  --color-positive: #4f7a5b;
+  --color-negative: #b4543f;
+  --color-warning: #c08a2e;
+
+  /* Chart-Neutralfarben für "Reported" und Vergleichswerte */
+  --color-chart-neutral: #9a948a;
+  --color-chart-neutral-soft: #c9c3b7;
+  --color-chart-grid: #e2ddd2;
+
+  /* Marken – dezent, warm, unterscheidbar */
+  --color-brand-snocks: #2f4858;
+  --color-brand-oceansapart: #5b8c85;
+  --color-brand-femtis: #b08968;
+  --color-brand-leslunes: #8a7ca8;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius: 0.75rem;
+}
+
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabellenzahlen: gleiche Ziffernbreite, damit Spalten ruhig stehen */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@layer components {
+  .card {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Recharts: Fokus-Outlines der Surface unterdrücken, Grid ruhig halten */
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
