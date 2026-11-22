@@ -255,13 +255,13 @@ export const SALES_EVENTS: SalesEvent[] = [
   { id: "winter-2025", label: "Winter Sale 2025", start: "2025-01-02", end: "2025-01-12", discountRate: 0.22, volumeUplift: 0.55, returnRateUplift: 0.2, spendFactor: 1.3 },
   { id: "easter-2025", label: "Oster-Aktion 2025", start: "2025-04-14", end: "2025-04-21", discountRate: 0.15, volumeUplift: 0.3, returnRateUplift: 0.12, spendFactor: 1.15 },
   { id: "summer-2025", label: "Summer Sale 2025", start: "2025-07-01", end: "2025-07-14", discountRate: 0.25, volumeUplift: 0.6, returnRateUplift: 0.22, spendFactor: 1.35 },
-  { id: "singles-2025", label: "Singles Day 2025", start: "2025-11-11", end: "2025-11-11", discountRate: 0.2, volumeUplift: 0.9, returnRateUplift: 0.25, spendFactor: 1.6 },
-  { id: "blackweek-2025", label: "Black Week 2025", start: "2025-11-24", end: "2025-12-01", discountRate: 0.3, volumeUplift: 2.6, returnRateUplift: 0.45, spendFactor: 2.4, isBlackWeek: true },
+  { id: "singles-2025", label: "Singles Day 2025", start: "2025-11-11", end: "2025-11-11", discountRate: 0.2, volumeUplift: 0.9, returnRateUplift: 0.25, spendFactor: 1.45 },
+  { id: "blackweek-2025", label: "Black Week 2025", start: "2025-11-24", end: "2025-12-01", discountRate: 0.28, volumeUplift: 2.4, returnRateUplift: 0.4, spendFactor: 1.6, isBlackWeek: true },
   { id: "xmas-2025", label: "Weihnachtsgeschäft 2025", start: "2025-12-08", end: "2025-12-20", discountRate: 0.08, volumeUplift: 0.7, returnRateUplift: 0.1, spendFactor: 1.4 },
   { id: "winter-2026", label: "Winter Sale 2026", start: "2026-01-02", end: "2026-01-12", discountRate: 0.23, volumeUplift: 0.58, returnRateUplift: 0.2, spendFactor: 1.3 },
   { id: "easter-2026", label: "Oster-Aktion 2026", start: "2026-04-03", end: "2026-04-10", discountRate: 0.15, volumeUplift: 0.32, returnRateUplift: 0.12, spendFactor: 1.15 },
   { id: "summer-2026", label: "Summer Sale 2026", start: "2026-07-01", end: "2026-07-14", discountRate: 0.26, volumeUplift: 0.62, returnRateUplift: 0.22, spendFactor: 1.35 },
-  { id: "singles-2026", label: "Singles Day 2026", start: "2026-11-11", end: "2026-11-11", discountRate: 0.21, volumeUplift: 0.95, returnRateUplift: 0.25, spendFactor: 1.6 },
+  { id: "singles-2026", label: "Singles Day 2026", start: "2026-11-11", end: "2026-11-11", discountRate: 0.21, volumeUplift: 0.95, returnRateUplift: 0.25, spendFactor: 1.45 },
 ];
 
 /** Der Planungsfall. Liegt nach TODAY und ist deshalb nicht in den Ist-Daten. */

@@ -96,3 +96,9 @@ export function monthLabel(ym: string): string {
   const [y, m] = ym.split("-").map(Number);
   return `${MONTHS[m - 1]} ${String(y).slice(2)}`;
 }
+
+/** Prozentpunkte ohne Vorzeichen – wenn der Text die Richtung schon sagt. */
+export function ppAbs(value: number, digits = 1): string {
+  if (!Number.isFinite(value)) return "—";
+  return `${fix(Math.abs(value) * 100, digits)} pp`;
+}

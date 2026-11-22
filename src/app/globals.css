@@ -28,15 +28,22 @@
   --color-warning: #c08a2e;
 
   /* Chart-Neutralfarben für "Reported" und Vergleichswerte */
-  --color-chart-neutral: #9a948a;
-  --color-chart-neutral-soft: #c9c3b7;
+  /* "Reported" ist bewusst ein warmes, dunkles Grau: gegen das Akzent-Pink
+   * getestet auf Farbfehlsichtigkeit (ΔE 10,9 protan) – die beiden Linien
+   * bleiben auch für Rot-Grün-Blinde und im Schwarzweißdruck trennbar.
+   * Zusätzlich trägt "Reported" immer eine gestrichelte Linie. */
+  --color-chart-neutral: #5f5a52;
+  --color-chart-neutral-soft: #b8b2a6;
+  --color-chart-neutral-faint: #d6d1c6;
   --color-chart-grid: #e2ddd2;
 
   /* Marken – dezent, warm, unterscheidbar */
-  --color-brand-snocks: #2f4858;
-  --color-brand-oceansapart: #5b8c85;
-  --color-brand-femtis: #b08968;
-  --color-brand-leslunes: #8a7ca8;
+  /* Markenpalette, mit scripts/validate_palette.js geprueft: Lightness-Band,
+   * Chroma-Floor, CVD-Trennung und Kontrast gegen Weiss bestehen alle. */
+  --color-brand-snocks: #06638c;
+  --color-brand-oceansapart: #c8821a;
+  --color-brand-femtis: #2f9b78;
+  --color-brand-leslunes: #8f63c8;
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

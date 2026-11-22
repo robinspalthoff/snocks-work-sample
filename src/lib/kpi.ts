@@ -181,6 +181,11 @@ export interface Cm {
   discount: number;
   refunds: number;
   netRevenue: number;
+  /** Landed Cost der gesamten versandten Ware. */
+  cogsShipped: number;
+  /** Landed Cost der zurückgekommenen Ware. */
+  cogsReturned: number;
+  /** Landed Cost der behaltenen Ware – die Basis für CM1. */
   cogs: number;
   cm1: number;
   fulfillment: number;
@@ -203,7 +208,7 @@ export interface Cm {
 
 const ZERO_CM: Cm = {
   orders: 0, newOrders: 0, gross: 0, discount: 0, refunds: 0, netRevenue: 0,
-  cogs: 0, cm1: 0, fulfillment: 0, shipping: 0, returnHandling: 0,
+  cogsShipped: 0, cogsReturned: 0, cogs: 0, cm1: 0, fulfillment: 0, shipping: 0, returnHandling: 0,
   paymentFees: 0, marketplaceFees: 0, variableCosts: 0, cm2: 0,
   marketing: 0, cm3: 0, cm1Margin: 0, cm2Margin: 0, cm3Margin: 0,
   returnRate: 0, aov: 0, mer: 0,
@@ -245,6 +250,8 @@ export function computeCm(rows: ComboSums[], view: View, marketing = 0): Cm {
     t.discount += sums.discount;
     t.refunds += refunds;
     t.netRevenue += netRevenue;
+    t.cogsShipped += sums.cogsShipped;
+    t.cogsReturned += cogsReturned;
     t.cogs += cogs;
     t.fulfillment += fulfillment;
     t.shipping += shipping;
