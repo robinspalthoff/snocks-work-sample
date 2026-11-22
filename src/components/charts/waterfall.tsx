@@ -47,11 +47,24 @@ export function Waterfall({
   reference: number;
   height?: number;
 }) {
+  const buckets: Bucket[] = [];
   let running = 0;
-  const buckets: Bucket[] = steps.map((s) => {
-    if (s.kind === "total" || s.kind === "subtotal" || s.kind === "highlight") {
+  for (const s of steps) {
+    if (s.kind === "deduction") {
+      const from = running;
+      running += s.value;
+      buckets.push({
+        label: s.label,
+        base: Math.min(from, running),
+        bar: Math.abs(s.value),
+        value: s.value,
+        kind: s.kind,
+        share: reference ? s.value / reference : 0,
+        note: s.note,
+      });
+    } else {
       running = s.value;
-      return {
+      buckets.push({
         label: s.label,
         base: Math.min(0, s.value),
         bar: Math.abs(s.value),
@@ -59,20 +72,9 @@ export function Waterfall({
         kind: s.kind,
         share: reference ? s.value / reference : 0,
         note: s.note,
-      };
+      });
     }
-    const from = running;
-    running += s.value;
-    return {
-      label: s.label,
-      base: Math.min(from, running),
-      bar: Math.abs(s.value),
-      value: s.value,
-      kind: s.kind,
-      share: reference ? s.value / reference : 0,
-      note: s.note,
-    };
-  });
+  }
 
   const colorOf = (kind: WaterfallStep["kind"]) =>
     kind === "highlight" ? C.real : kind === "deduction" ? C.neutralSoft : C.reported;

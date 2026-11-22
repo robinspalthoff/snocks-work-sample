@@ -419,6 +419,9 @@ export function brandAllocation(cube: Cube, f: Filters): Partial<Record<Brand, n
 export interface ChannelEfficiency {
   marketingChannel: MarketingChannel;
   spend: number;
+  /** Bestellwert nach Rabatt, VOR Retouren – so melden es die Plattformen. */
+  attributedOrderValue: number;
+  /** Bestellwert nach Rabatt UND nach Retouren. */
   attributedRevenue: number;
   roas: number;
   cm2: number;
@@ -454,6 +457,7 @@ export function channelEfficiency(
       {
         marketingChannel: row.marketingChannel,
         spend: 0,
+        attributedOrderValue: 0,
         attributedRevenue: 0,
         roas: 0,
         cm2: 0,
@@ -464,6 +468,7 @@ export function channelEfficiency(
       };
 
     cur.spend += s.spend;
+    cur.attributedOrderValue += s.attrGross - s.attrDiscount;
     cur.attributedRevenue += net;
     cur.cm2 += cm2;
     cur.orders += s.attrOrders;
@@ -485,7 +490,10 @@ export function channelEfficiency(
     const e = byChannel.get(c)!;
     return {
       ...e,
-      roas: safeDiv(e.attributedRevenue, e.spend),
+      // ROAS auf dem gemeldeten Bestellwert vor Retouren – genau die
+      // Zahl, die im Ads-Manager steht. Der POAS daneben zeigt, was davon
+      // nach Retouren und allen variablen Kosten übrig bleibt.
+      roas: safeDiv(e.attributedOrderValue, e.spend),
       poas: safeDiv(e.cm2, e.spend),
       returnRate: safeDiv(e.returnRate, grossByChannel.get(c) ?? 0),
       cac: safeDiv(e.spend, e.orders),

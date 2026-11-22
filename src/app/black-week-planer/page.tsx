@@ -46,18 +46,13 @@ export default function BlackWeekPlannerPage() {
     return buildBaseline(actual, growthFactor(filters));
   }, [filters]);
 
-  const [inputs, setInputs] = useState<PlannerInputs>(baseline.inputs2025);
-  const [touched, setTouched] = useState(false);
+  // Solange nichts geregelt wurde, folgt die Eingabe der Vorbelegung aus den
+  // Ist-Daten – ein Filterwechsel aktualisiert sie dann automatisch mit.
+  const [custom, setCustom] = useState<PlannerInputs | null>(null);
+  const inputs = custom ?? baseline.inputs2025;
+  const touched = custom !== null;
 
-  // Filterwechsel setzt die Vorbelegung neu, solange nichts geregelt wurde.
-  useEffect(() => {
-    if (!touched) setInputs(baseline.inputs2025);
-  }, [baseline, touched]);
-
-  const set = (patch: Partial<PlannerInputs>) => {
-    setTouched(true);
-    setInputs((i) => ({ ...i, ...patch }));
-  };
+  const set = (patch: Partial<PlannerInputs>) => setCustom({ ...inputs, ...patch });
 
   const base = runScenario(baseline, inputs);
   const best = runScenario(baseline, {
@@ -136,10 +131,7 @@ export default function BlackWeekPlannerPage() {
               touched && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setInputs(baseline.inputs2025);
-                    setTouched(false);
-                  }}
+                  onClick={() => setCustom(null)}
                   className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-accent-strong"
                 >
                   <RotateCcw className="size-3.5" />

@@ -30,8 +30,10 @@ export function KpiCard({
       <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
         {label}
       </p>
-      <p className="tnum mt-2 text-[26px] leading-none font-semibold tracking-tight">{value}</p>
-      <div className="mt-1.5 flex items-baseline gap-2">
+      <p className="tnum mt-2 text-[21px] leading-none font-semibold tracking-tight sm:text-[26px]">
+        {value}
+      </p>
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         {secondary && <span className="tnum text-[12px] text-muted-foreground">{secondary}</span>}
         {delta && (
           <span

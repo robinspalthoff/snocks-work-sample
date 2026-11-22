@@ -78,10 +78,6 @@ function noise(sd: number): number {
   return Math.max(0.25, 1 + randn() * sd);
 }
 
-function pick<T>(items: readonly T[]): T {
-  return items[Math.floor(rand() * items.length)];
-}
-
 function pickWeighted<T>(items: readonly T[], weights: readonly number[]): T {
   const total = weights.reduce((a, b) => a + b, 0);
   let r = rand() * total;
@@ -234,20 +230,6 @@ const C = combos.length;
 
 // ─── Würfel aufbauen ────────────────────────────────────────────────────
 
-const metricNames = [
-  "orders",
-  "newOrders",
-  "gross",
-  "discount",
-  "refundCohort",
-  "refundReported",
-  "returnedOrdersCohort",
-  "returnedOrdersReported",
-  "cogsShipped",
-  "cogsReturnedCohort",
-  "cogsReturnedReported",
-] as const;
-
 /** Rohwerte (float) pro Kombination × Tag, vor der Kalibrierung. */
 const raw = {
   gross: mat(),
@@ -369,7 +351,6 @@ const mktMetricNames = [
   "attrReturnedOrders",
 ] as const;
 
-const mktRows: number[][] = []; // [brandIdx, mktChannelIdx] → Werte je Tag
 const mktKeys: Array<[number, number]> = [];
 for (let bi = 0; bi < BRANDS.length; bi++) {
   for (let mi = 0; mi < MARKETING_CHANNELS.length; mi++) mktKeys.push([bi, mi]);
@@ -448,13 +429,6 @@ function write(name: string, value: unknown) {
   writeFileSync(path.join(OUT, name), json);
   totalBytes += json.length;
   console.log(`  ${name.padEnd(24)} ${(json.length / 1024).toFixed(0).padStart(5)} KB`);
-}
-
-/** Skalierte, ganzzahlige Tagesreihe einer Metrik für eine Kombination. */
-function dayCol(src: Float64Array[], ci: number, factor: number, from: number, to: number): number[] {
-  const out: number[] = [];
-  for (let di = from; di <= to; di++) out.push(Math.round(src[ci][di + emitFrom] * factor));
-  return out;
 }
 
 const CUBE_METRICS = [
@@ -804,42 +778,42 @@ function round2(v: number): number {
 // ─── 7. Plan (Soll-Ist) ─────────────────────────────────────────────────
 
 const planRows = months.map((ym, mi) => {
-  const actual = BRANDS.map((_, bi) => {
-    let gross = 0;
-    let discount = 0;
-    let refund = 0;
+  return BRANDS.map((brand, bi) => {
+    let netBeforeRefund = 0;
+    let refunds = 0;
     let orders = 0;
     for (let ci = 0; ci < combos.length; ci++) {
       if (combos[ci].bi !== bi) continue;
       for (let di = 0; di < days.length; di++) {
         if (monthOfDay[di] !== mi) continue;
-        gross += val("gross", ci, di);
-        discount += val("discount", ci, di);
-        refund += val("refundCohort", ci, di);
+        netBeforeRefund += val("gross", ci, di) - val("discount", ci, di);
+        refunds += val("refundCohort", ci, di);
         orders += val("orders", ci, di);
       }
     }
-    return { gross, discount, refund, orders };
-  });
+    const actualAov = netBeforeRefund / Math.max(1, orders);
+    const actualReturnRate = refunds / Math.max(1, netBeforeRefund);
 
-  return BRANDS.map((_, bi) => {
-    const a = actual[bi];
-    const net = a.gross - a.discount - a.refund;
-    // Der Plan war optimistischer und hat die Retouren unterschätzt.
-    const optimism = 1 + PLAN_OPTIMISM + randn() * 0.045;
-    const planOrders = Math.round(a.orders * (1 + PLAN_OPTIMISM * 0.6 + randn() * 0.03));
-    const planAov = round2((net / Math.max(1, a.orders)) * (1 + randn() * 0.02));
+    // Der Plan war optimistischer bei der Menge und hat die Retouren
+    // unterschätzt – der typische Fehler, wenn man auf Reported-Zahlen plant.
+    const planOrders = Math.round(orders * (1 + PLAN_OPTIMISM + randn() * 0.035));
+    const planAov = Math.round(actualAov * (1 + randn() * 0.025) * 100) / 100;
     const planReturnRate = Math.max(
       0.01,
-      (a.refund / Math.max(1, a.gross)) * (0.9 + randn() * 0.04),
+      Number((actualReturnRate * (0.88 + randn() * 0.04)).toFixed(4)),
     );
+
     return {
       month: ym,
-      brand: BRANDS[bi],
-      planNetRevenue: Math.round(net * optimism),
+      brand,
+      /** Bestellungen laut Plan. */
       planOrders,
+      /** Netto-Bestellwert je Bestellung vor Erstattungen. */
       planAov,
-      planReturnRate: Number(planReturnRate.toFixed(4)),
+      /** Erstattungen in % des Bestellwerts vor Erstattungen. */
+      planReturnRate,
+      /** Abgeleitet: Netto-Umsatz laut Plan. */
+      planNetRevenue: Math.round(planOrders * planAov * (1 - planReturnRate)),
     };
   });
 });

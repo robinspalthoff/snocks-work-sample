@@ -16,6 +16,8 @@ import cubeWindowRaw from "../../data/cube-window-daily.json";
 import marketingMonthRaw from "../../data/marketing-month.json";
 import cohortsRaw from "../../data/cohorts.json";
 import metaRaw from "../../data/meta.json";
+import dataQualityRaw from "../../data/data-quality.json";
+import planRaw from "../../data/plan.json";
 import {
   decodeCube,
   decodeMarketing,
@@ -34,6 +36,27 @@ export const marketingMonth: MarketingCube = decodeMarketing(
 
 export const months: string[] = cubeMonth.periods;
 export const meta = metaRaw;
+
+export interface DataQuality {
+  closedThrough: string;
+  lateRefunds: { value: number; count: number };
+  missingCogs: { share: number; orders: number; grossValue: number };
+  partialRefundsWithoutReturn: { share: number; note: string };
+  marketplaceDrift: Array<Record<string, number | string> & { month: string }>;
+}
+
+export const dataQuality = dataQualityRaw as unknown as DataQuality;
+
+export interface PlanRow {
+  month: string;
+  brand: Brand;
+  planOrders: number;
+  planAov: number;
+  planReturnRate: number;
+  planNetRevenue: number;
+}
+
+export const planRows = (planRaw as unknown as { rows: PlanRow[] }).rows;
 
 // ─── Kohorten ───────────────────────────────────────────────────────────
 

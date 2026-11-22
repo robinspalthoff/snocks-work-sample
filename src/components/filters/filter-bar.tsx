@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, RotateCcw } from "lucide-react";
+import { ChevronDown, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { BRANDS, CHANNELS, MARKET_ASSUMPTIONS, MARKETS } from "@/config/assumptions";
-import { buildPresets, useFilters } from "@/lib/filters";
+import { buildPresets, describeFilters, useFilters } from "@/lib/filters";
 import { months } from "@/data/datasets";
 import { monthLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -12,10 +12,34 @@ export function FilterBar({ className }: { className?: string }) {
   const { filters, setPeriod, toggle, setAll, reset, isDefault } = useFilters();
   const presets = useMemo(() => buildPresets(months), []);
   const [customOpen, setCustomOpen] = useState(false);
+  // Auf schmalen Viewports nimmt die vollstaendige Filterleiste sonst den
+  // halben Bildschirm ein, bevor die erste Zahl sichtbar wird.
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className={cn("card mb-6 px-4 py-3.5", className)}>
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      <button
+        type="button"
+        onClick={() => setMobileOpen((o) => !o)}
+        aria-expanded={mobileOpen}
+        className="flex w-full items-center gap-2 text-left text-[12px] lg:hidden"
+      >
+        <SlidersHorizontal className="size-3.5 shrink-0 text-muted-foreground" />
+        <span className="font-medium">Filter</span>
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+          {monthLabel(filters.from)} – {monthLabel(filters.to)} · {describeFilters(filters)}
+        </span>
+        <ChevronDown
+          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", mobileOpen && "rotate-180")}
+        />
+      </button>
+
+      <div
+        className={cn(
+          "flex-wrap items-center gap-x-6 gap-y-3 lg:flex",
+          mobileOpen ? "mt-3 flex lg:mt-0" : "hidden",
+        )}
+      >
         <FilterGroup label="Zeitraum">
           <div className="flex flex-wrap items-center gap-1.5">
             {presets.map((p) => (
