@@ -159,9 +159,9 @@ function ProfileCard({ collapsed }: { collapsed: boolean }) {
           href={PROFILE.upgrade}
           target="_blank"
           rel="noopener noreferrer"
-          className="glass-btn mt-3 h-11 w-full py-0 pr-4 pl-1.5 text-[13px] font-medium text-[#2b2f31]"
+          className="glass-btn mt-3 h-11 w-full justify-center py-0 pr-4 pl-4 text-[13px] font-medium text-[#2b2f31]"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#2b2f31] shadow-[0_0_6px_rgba(0,0,0,0.28)]">
+          <span className="absolute top-1/2 left-1.5 grid size-8 shrink-0 -translate-y-1/2 place-items-center rounded-full bg-[#2b2f31] shadow-[0_0_6px_rgba(0,0,0,0.28)]">
             <Sparkles className="size-4 text-white" strokeWidth={2} />
           </span>
           Upgrade Now
