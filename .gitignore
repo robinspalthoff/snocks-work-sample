@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Generierte Daten – deterministisch aus scripts/generate-data.ts (npm run generate)
 /data
+
+# Lokale Editor-/Agent-Konfiguration
+.claude/

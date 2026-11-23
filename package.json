@@ -9,7 +9,8 @@
     "lint": "eslint",
     "generate": "tsx scripts/generate-data.ts",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"scripts/**/*.ts\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"scripts/**/*.ts\"",
+    "verify": "tsx scripts/verify-data.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

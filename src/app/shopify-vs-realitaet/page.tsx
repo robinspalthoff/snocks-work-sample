@@ -409,6 +409,12 @@ export default function ShopifyVsRealityPage() {
               Am Bestelltag sieht jede Kohorte gut aus – es ist noch nichts zurückgekommen. Der
               Unterschied ist die Fallhöhe: die Black-Week-Kohorte verliert {ppAbs(decay / 100)},
               weil Rabatt und Retourenquote gleichzeitig hoch sind.
+              <br />
+              <br />
+              Wichtige Einschränkung: Der Kohorte wird der gesamte Ad-Spend des Aktionsfensters
+              angelastet. Ein Teil davon gewinnt Kunden, die später wiederkommen – diese Folgekäufe
+              zählt die Rechnung nicht mit. Die Black Week steht hier also bewusst streng da. Für
+              die Budgetentscheidung wäre die Gegenrechnung der Wiederkaufrate der nächste Schritt.
             </>
           }
         />

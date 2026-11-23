@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight, Code2 } from "lucide-react";
 import { GithubLogo, LinkedinLogo } from "@/components/brand/logos";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { DATA_DISCLAIMER } from "@/config/assumptions";
 
