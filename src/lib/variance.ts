@@ -89,7 +89,11 @@ function planFigures(
   return { orders, netBeforeRefund, refunds };
 }
 
-function decompose(plan: Figures, actual: Figures, brandSplit: { plan: Figures; actual: Figures }[]) {
+function decompose(
+  plan: Figures,
+  actual: Figures,
+  brandSplit: { plan: Figures; actual: Figures }[],
+) {
   const planAov = safeDiv(plan.netBeforeRefund, plan.orders);
   const planReturnRate = safeDiv(plan.refunds, plan.netBeforeRefund);
   const keepRate = 1 - planReturnRate;

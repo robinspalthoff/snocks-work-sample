@@ -12,6 +12,11 @@ import { cn } from "@/lib/utils";
  */
 export const C = {
   real: "#cc5b8b",
+  /** Textvarianten der Akzentfarben. Die Chartfarben oben sind auf
+   *  Flächen und Linien optimiert und für kleine Schrift zu hell;
+   *  diese beiden erfüllen den AA-Kontrast gegen Weiß. */
+  realInk: "#ab3f6d",
+  warningInk: "#8a6316",
   realSoft: "#f6e6ee",
   reported: "#5f5a52",
   neutral: "#8e887d",
@@ -19,8 +24,8 @@ export const C = {
   neutralFaint: "#d6d1c6",
   grid: "#e2ddd2",
   axis: "#908a80",
-  positive: "#4f7a5b",
-  negative: "#b4543f",
+  positive: "#456b50",
+  negative: "#a74a35",
   warning: "#c08a2e",
   brands: {
     SNOCKS: "#06638c",
@@ -63,7 +68,7 @@ export function TooltipCard({
   note?: string;
 }) {
   return (
-    <div className="pointer-events-none rounded-lg border border-border bg-card px-3 py-2 shadow-[0_6px_24px_rgba(26,26,26,0.1)]">
+    <div className="border-border bg-card pointer-events-none rounded-lg border px-3 py-2 shadow-[0_6px_24px_rgba(26,26,26,0.1)]">
       <p className="mb-1.5 text-[11px] font-semibold">{title}</p>
       <ul className="space-y-1">
         {rows.map((r) => (
@@ -85,7 +90,7 @@ export function TooltipCard({
           </li>
         ))}
       </ul>
-      {note && <p className="mt-1.5 text-[10.5px] text-subtle-foreground">{note}</p>}
+      {note && <p className="text-subtle-foreground mt-1.5 text-[10.5px]">{note}</p>}
     </div>
   );
 }
@@ -102,7 +107,7 @@ export function Legend({
   return (
     <ul className={cn("flex flex-wrap items-center gap-x-4 gap-y-1.5", className)}>
       {items.map((i) => (
-        <li key={i.label} className="flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
+        <li key={i.label} className="text-muted-foreground flex items-center gap-1.5 text-[11.5px]">
           {i.swatch === "box" ? (
             <span
               aria-hidden
@@ -140,8 +145,8 @@ export function BarRow({
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="w-[108px] shrink-0 truncate text-[12px] text-muted-foreground">{label}</span>
-      <span className="relative h-5 flex-1 overflow-hidden rounded-[3px] bg-muted">
+      <span className="text-muted-foreground w-[108px] shrink-0 truncate text-[12px]">{label}</span>
+      <span className="bg-muted relative h-5 flex-1 overflow-hidden rounded-[3px]">
         <span
           className="absolute inset-y-0 left-0 rounded-[3px]"
           style={{

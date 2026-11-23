@@ -48,7 +48,7 @@ export default function AboutPage() {
 
       <Card className="mb-6 px-5 py-5">
         <h2 className="text-[15px] font-semibold">Robin Spalthoff</h2>
-        <p className="mt-2 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-2 max-w-2xl text-[13.5px] leading-relaxed">
           Ich arbeite an der Schnittstelle von Controlling und Technik: Ich denke in
           Deckungsbeiträgen und Periodenabgrenzung, baue die Auswertung aber selbst – statt sie zu
           beauftragen und auf den nächsten Sprint zu warten. Diese Arbeitsprobe ist der Versuch,
@@ -70,38 +70,38 @@ export default function AboutPage() {
       <div className="mb-6 grid gap-4 md:grid-cols-2">
         <Card className="px-5 py-5">
           <h2 className="text-[13px] font-semibold">Warum dieses Thema</h2>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground mt-2 text-[13px] leading-relaxed">
             Der Standardreport eines Shopsystems bucht Erstattungen am Tag der Erstattung. Nach
             einem Sales Event sieht der Monat deshalb besser aus, als er war, und der Folgemonat
             schlechter. Wer auf dieser Basis über Rabatthöhe und Ad-Spend entscheidet, entscheidet
             mit einem systematischen Fehler. Für ein House of Brands mit mehreren Marken, Kanälen
-            und Märkten summiert sich dieser Fehler – und er ist mit sauberer Zuordnung
-            vollständig lösbar.
+            und Märkten summiert sich dieser Fehler – und er ist mit sauberer Zuordnung vollständig
+            lösbar.
           </p>
         </Card>
 
         <Card className="px-5 py-5">
           <h2 className="text-[13px] font-semibold">Wie ich vorgegangen bin</h2>
-          <ul className="mt-2 space-y-1.5 text-[13px] leading-relaxed text-muted-foreground">
+          <ul className="text-muted-foreground mt-2 space-y-1.5 text-[13px] leading-relaxed">
             <li>
-              <strong className="font-medium text-foreground">Zeitaufwand:</strong> rund ein
+              <strong className="text-foreground font-medium">Zeitaufwand:</strong> rund ein
               Arbeitstag, KI-gestützt. Fachliche Modellierung, Annahmen und Interpretation kommen
               von mir, die Umsetzung habe ich mit Claude Code deutlich beschleunigt.
             </li>
             <li>
-              <strong className="font-medium text-foreground">Daten:</strong> ein
-              deterministischer Generator mit festem Seed. Alle Annahmen stehen an einer Stelle im
-              Code und werden im Dashboard angezeigt.
+              <strong className="text-foreground font-medium">Daten:</strong> ein deterministischer
+              Generator mit festem Seed. Alle Annahmen stehen an einer Stelle im Code und werden im
+              Dashboard angezeigt.
             </li>
             <li>
-              <strong className="font-medium text-foreground">Technik:</strong> Next.js,
-              TypeScript, Tailwind, Recharts. Kein Backend, keine Datenbank, keine Zugangsdaten –
-              die Szenariorechnungen laufen im Browser.
+              <strong className="text-foreground font-medium">Technik:</strong> Next.js, TypeScript,
+              Tailwind, Recharts. Kein Backend, keine Datenbank, keine Zugangsdaten – die
+              Szenariorechnungen laufen im Browser.
             </li>
             <li>
-              <strong className="font-medium text-foreground">Prinzip:</strong> eine einzige
-              KPI-Logik im Code, die alle Seiten benutzen. Keine Zahl auf einer Seite, die auf
-              einer anderen anders gerechnet wird.
+              <strong className="text-foreground font-medium">Prinzip:</strong> eine einzige
+              KPI-Logik im Code, die alle Seiten benutzen. Keine Zahl auf einer Seite, die auf einer
+              anderen anders gerechnet wird.
             </li>
           </ul>
         </Card>
@@ -116,17 +116,17 @@ export default function AboutPage() {
           {NINETY_DAYS.map((item, i) => (
             <li
               key={item.title}
-              className="border-t border-border py-4 first:border-t-0 first:pt-0"
+              className="border-border border-t py-4 first:border-t-0 first:pt-0"
             >
               <div className="flex items-baseline gap-3">
-                <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground">
+                <span className="bg-muted text-muted-foreground shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-medium">
                   {item.phase}
                 </span>
                 <h3 className="text-[13.5px] font-semibold">
                   {i + 1}. {item.title}
                 </h3>
               </div>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground mt-1.5 text-[13px] leading-relaxed">
                 {item.body}
               </p>
             </li>
@@ -136,16 +136,16 @@ export default function AboutPage() {
 
       <Card className="px-5 py-5">
         <h2 className="text-[13px] font-semibold">Hinweis zu den Daten</h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{DATA_DISCLAIMER}</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-2 text-[13px] leading-relaxed">{DATA_DISCLAIMER}</p>
+        <p className="text-muted-foreground mt-2 text-[13px] leading-relaxed">
           Markennamen werden ausschließlich genannt, um den Kontext der Bewerbung herzustellen.
           Diese Arbeitsprobe verwendet keine Logos, Schriften, Produktbilder oder sonstigen
           Gestaltungselemente der SNOCKS GmbH und steht in keiner Verbindung zu ihr. Die Seite ist
-          über <code className="rounded bg-muted px-1 py-0.5 text-[11.5px]">noindex</code> von
+          über <code className="bg-muted rounded px-1 py-0.5 text-[11.5px]">noindex</code> von
           Suchmaschinen ausgenommen.
         </p>
         <p className="mt-3 text-[13px]">
-          <Link href="/" className="font-medium text-accent-strong hover:underline">
+          <Link href="/" className="text-accent-strong font-medium hover:underline">
             Zurück zum Overview
           </Link>
         </p>
@@ -168,7 +168,7 @@ function ExternalLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[12.5px] text-muted-foreground transition-colors hover:border-accent hover:text-accent-strong"
+      className="border-border text-muted-foreground hover:border-accent hover:text-accent-strong inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] transition-colors"
     >
       {icon}
       {children}

@@ -207,11 +207,31 @@ export interface Cm {
 }
 
 const ZERO_CM: Cm = {
-  orders: 0, newOrders: 0, gross: 0, discount: 0, refunds: 0, netRevenue: 0,
-  cogsShipped: 0, cogsReturned: 0, cogs: 0, cm1: 0, fulfillment: 0, shipping: 0, returnHandling: 0,
-  paymentFees: 0, marketplaceFees: 0, variableCosts: 0, cm2: 0,
-  marketing: 0, cm3: 0, cm1Margin: 0, cm2Margin: 0, cm3Margin: 0,
-  returnRate: 0, aov: 0, mer: 0,
+  orders: 0,
+  newOrders: 0,
+  gross: 0,
+  discount: 0,
+  refunds: 0,
+  netRevenue: 0,
+  cogsShipped: 0,
+  cogsReturned: 0,
+  cogs: 0,
+  cm1: 0,
+  fulfillment: 0,
+  shipping: 0,
+  returnHandling: 0,
+  paymentFees: 0,
+  marketplaceFees: 0,
+  variableCosts: 0,
+  cm2: 0,
+  marketing: 0,
+  cm3: 0,
+  cm1Margin: 0,
+  cm2Margin: 0,
+  cm3Margin: 0,
+  returnRate: 0,
+  aov: 0,
+  mer: 0,
 };
 
 /**
@@ -228,8 +248,7 @@ export function computeCm(rows: ComboSums[], view: View, marketing = 0): Cm {
     const mk = MARKET_ASSUMPTIONS[combo.market];
 
     const refunds = view === "cohort" ? sums.refundCohort : sums.refundReported;
-    const cogsReturned =
-      view === "cohort" ? sums.cogsReturnedCohort : sums.cogsReturnedReported;
+    const cogsReturned = view === "cohort" ? sums.cogsReturnedCohort : sums.cogsReturnedReported;
     const returnedOrders =
       view === "cohort" ? sums.returnedOrdersCohort : sums.returnedOrdersReported;
 
@@ -331,8 +350,14 @@ export type MktSums = Record<MktMetric, number>;
 
 function emptyMkt(): MktSums {
   return {
-    spend: 0, attrGross: 0, attrDiscount: 0, attrRefund: 0,
-    attrOrders: 0, attrCogsShipped: 0, attrCogsReturned: 0, attrReturnedOrders: 0,
+    spend: 0,
+    attrGross: 0,
+    attrDiscount: 0,
+    attrRefund: 0,
+    attrOrders: 0,
+    attrCogsShipped: 0,
+    attrCogsReturned: 0,
+    attrReturnedOrders: 0,
   };
 }
 
@@ -452,20 +477,18 @@ export function channelEfficiency(
       net * CHANNEL_ASSUMPTIONS.Onlineshop.paymentFeeRate;
     const cm2 = net - cogs - variable;
 
-    const cur =
-      byChannel.get(row.marketingChannel) ??
-      {
-        marketingChannel: row.marketingChannel,
-        spend: 0,
-        attributedOrderValue: 0,
-        attributedRevenue: 0,
-        roas: 0,
-        cm2: 0,
-        poas: 0,
-        returnRate: 0,
-        orders: 0,
-        cac: 0,
-      };
+    const cur = byChannel.get(row.marketingChannel) ?? {
+      marketingChannel: row.marketingChannel,
+      spend: 0,
+      attributedOrderValue: 0,
+      attributedRevenue: 0,
+      roas: 0,
+      cm2: 0,
+      poas: 0,
+      returnRate: 0,
+      orders: 0,
+      cac: 0,
+    };
 
     cur.spend += s.spend;
     cur.attributedOrderValue += s.attrGross - s.attrDiscount;

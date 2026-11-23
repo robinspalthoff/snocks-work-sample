@@ -1,386 +1,254 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BadgeEuro, CalendarRange, GitCompareArrows } from "lucide-react";
+import { PROFILE } from "@/components/layout/nav";
 import {
-  Bar,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { FilterBar } from "@/components/filters/filter-bar";
-import { AXIS, C, GRID, Legend, TooltipCard } from "@/components/charts/chart-kit";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
-import { DataTable, type Column } from "@/components/ui/data-table";
-import { KpiCard } from "@/components/ui/kpi-card";
-import { PageHeader } from "@/components/ui/page-header";
-import { BRAND_ASSUMPTIONS, MARKET_ASSUMPTIONS } from "@/config/assumptions";
-import { eur, eurCompact, eurDelta, monthLabel, pct, pp, ratio } from "@/lib/format";
-import { blendedPoas, useDashboard, type DimensionRow } from "@/lib/use-dashboard";
-import { describeFilters, useFilters } from "@/lib/filters";
+  BLACK_WEEK_2025,
+  BRANDS,
+  CHANNELS,
+  MARKETS,
+  REFUND_WINDOW_DAYS,
+  TODAY,
+} from "@/config/assumptions";
+import { cohortMetricIdx, cohorts, meta } from "@/data/datasets";
+import { computeCm, type ComboSums } from "@/lib/kpi";
+import { dateLabel, eurCompact, pct, ppAbs } from "@/lib/format";
 
-export default function OverviewPage() {
-  const d = useDashboard();
-  const { filters } = useFilters();
+/**
+ * Startseite: bewusst ruhig. Eine Aussage, drei Einstiege, rechts der
+ * Rahmen zum Projekt. Alles Weitere liegt hinter der Navigation.
+ *
+ * Die Seite rechnet nur mit den kleinen Kohortendateien, nicht mit dem
+ * vollen Monatswürfel – so bleibt der Einstieg leicht.
+ */
+function blackWeekMargins() {
+  const idx = cohorts.cohorts.findIndex((c) => c.highlight);
+  const spend = cohorts.spend[idx].reduce((a, b) => a + b, 0);
 
-  const deltaCm3 = d.reported.cm3 - d.real.cm3;
-  const deltaMargin = d.reported.cm3Margin - d.real.cm3Margin;
-  const deltaNet = d.reported.netRevenue - d.real.netRevenue;
-  const poas = blendedPoas(d.efficiency);
+  const at = (share: number) => {
+    const rows: ComboSums[] = cohorts.combos.map((combo, ci) => {
+      const v = cohorts.data[idx][ci];
+      return {
+        combo,
+        sums: {
+          orders: v[cohortMetricIdx.orders],
+          newOrders: v[cohortMetricIdx.newOrders],
+          gross: v[cohortMetricIdx.gross],
+          discount: v[cohortMetricIdx.discount],
+          refundCohort: v[cohortMetricIdx.refundTotal] * share,
+          refundReported: 0,
+          returnedOrdersCohort: v[cohortMetricIdx.returnedOrdersTotal] * share,
+          returnedOrdersReported: 0,
+          cogsShipped: v[cohortMetricIdx.cogsShipped],
+          cogsReturnedCohort: v[cohortMetricIdx.cogsReturnedTotal] * share,
+          cogsReturnedReported: 0,
+        },
+      };
+    });
+    return computeCm(rows, "cohort", spend);
+  };
 
-  // Über lange Zeiträume gleichen sich beide Sichten aus – die Verzerrung
-  // steckt in einzelnen Monaten. Deshalb hier zusätzlich der Spitzenmonat.
-  const peak = d.monthly.length
-    ? d.monthly.reduce((best, m) =>
-        m.reported.cm3 - m.real.cm3 > best.reported.cm3 - best.real.cm3 ? m : best,
-      )
-    : null;
-  const peakDelta = peak ? peak.reported.cm3 - peak.real.cm3 : 0;
-  const peakMargin = peak ? peak.reported.cm3Margin - peak.real.cm3Margin : 0;
+  const start = at(0);
+  const end = at(1);
+  return {
+    start: start.cm3Margin,
+    end: end.cm3Margin,
+    decay: start.cm3Margin - end.cm3Margin,
+    cm3: end.cm3,
+  };
+}
 
-  const chartData = d.monthly.map((m) => ({
-    month: monthLabel(m.month),
-    netRevenue: Math.round(m.real.netRevenue),
-    cm3Real: Math.round(m.real.cm3),
-    cm3Reported: Math.round(m.reported.cm3),
-  }));
+const bw = blackWeekMargins();
 
+const TILES = [
+  {
+    href: "/shopify-vs-realitaet",
+    icon: GitCompareArrows,
+    title: "Das Problem sehen",
+    body: `Warum die Black-Week-Kohorte mit ${pct(bw.start)} Marge startet und bei ${pct(bw.end)} endet.`,
+    cta: "Shopify vs. Realität",
+  },
+  {
+    href: "/contribution-margin",
+    icon: BadgeEuro,
+    title: "Die Marge rechnen",
+    body: "Vom Brutto-Umsatz zum CM3 – jeder Kostenblock einzeln, nachrechenbar.",
+    cta: "Contribution Margin",
+  },
+  {
+    href: "/black-week-planer",
+    icon: CalendarRange,
+    title: "Die nächste Aktion planen",
+    body: "Rabatt, Absatz, Retouren und Ad-Spend gemeinsam rechnen statt in vier Tabellen.",
+    cta: "Black Week 2026",
+  },
+];
+
+export default function HomePage() {
   return (
-    <div className="animate-fade-up">
-      <PageHeader
-        title="Overview"
-        insight={
-          peak ? (
-            <>
-              Über den ganzen Zeitraum gleichen sich beide Sichten fast aus (Δ CM3{" "}
-              {eurDelta(deltaCm3)}) – die Verzerrung steckt in einzelnen Monaten: im{" "}
-              <strong className="font-semibold text-foreground">{monthLabel(peak.month)}</strong>{" "}
-              wies der Report einen um{" "}
-              <strong className="font-semibold text-foreground">{eurCompact(peakDelta)}</strong> zu
-              hohen CM3 aus, <strong className="font-semibold text-foreground">{pp(peakMargin)}</strong>{" "}
-              Marge.
-            </>
-          ) : (
-            <>Kein Zeitraum ausgewählt.</>
-          )
-        }
-      />
+    <div className="animate-fade-up mx-auto grid max-w-[1400px] gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+      {/* ─── Begrüßung ──────────────────────────────────────────────────── */}
+      <section className="flex flex-col items-center justify-center px-2 py-10 text-center lg:py-16">
+        <Starburst />
 
-      <FilterBar />
+        <h1 className="mt-8 text-[40px] leading-[1.05] font-semibold tracking-tight sm:text-[52px]">
+          Willkommen.
+        </h1>
+        <p className="text-muted-foreground mt-4 max-w-xl text-[15px] leading-relaxed">
+          Eine Arbeitsprobe zur Deckungsbeitragsrechnung im D2C-Handel. Sie zeigt, warum
+          Standardreports nach einem Sales Event zu gut aussehen – und wie die Zahlen aussehen, wenn
+          man Retouren der Bestellung zuordnet, zu der sie gehören.
+        </p>
 
-      {/* ─── Headline: Reported vs. Real ───────────────────────────────── */}
-      <Card className="mb-6 overflow-hidden">
-        <div className="grid gap-px bg-border md:grid-cols-[1fr_1fr_1.1fr]">
-          <div className="bg-card px-5 py-5">
-            <p className="flex items-center gap-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-              <span
-                aria-hidden
-                className="inline-block h-0 w-4 border-t-2 border-dashed"
-                style={{ borderColor: C.reported }}
-              />
-              CM3 reported
-            </p>
-            <p className="tnum mt-2 text-[30px] leading-none font-semibold">
-              {eurCompact(d.reported.cm3)}
-            </p>
-            <p className="tnum mt-1.5 text-[12px] text-muted-foreground">
-              {pct(d.reported.cm3Margin)} Marge · Erstattungen am Erstattungsdatum
-            </p>
+        <div className="mt-10 grid w-full gap-3 sm:grid-cols-3">
+          {TILES.map((tile) => {
+            const Icon = tile.icon;
+            return (
+              <Link
+                key={tile.href}
+                href={tile.href}
+                className="group card flex flex-col px-5 py-5 text-left transition-shadow hover:shadow-[0_4px_20px_rgba(12,18,21,0.07)]"
+              >
+                <Icon className="text-foreground size-5" strokeWidth={1.8} />
+                <h2 className="mt-4 text-[14px] font-semibold">{tile.title}</h2>
+                <p className="text-muted-foreground mt-1.5 flex-1 text-[12.5px] leading-relaxed">
+                  {tile.body}
+                </p>
+                <span className="text-foreground mt-4 inline-flex items-center gap-1 text-[12px] font-medium">
+                  {tile.cta}
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <Link
+          href="/overview"
+          className="text-muted-foreground hover:text-foreground mt-5 inline-flex items-center gap-1.5 text-[13px] font-medium transition-colors"
+        >
+          Oder direkt zu allen Kennzahlen im Overview
+          <ArrowRight className="size-3.5" />
+        </Link>
+      </section>
+
+      {/* ─── Rahmen zum Projekt ─────────────────────────────────────────── */}
+      <aside className="flex flex-col gap-3">
+        <div className="card px-5 py-5">
+          <div className="flex items-center gap-3">
+            <Image
+              src={PROFILE.photo}
+              alt=""
+              width={44}
+              height={44}
+              className="size-11 rounded-full object-cover"
+            />
+            <span className="min-w-0">
+              <span className="block text-[14px] font-semibold">{PROFILE.name}</span>
+              <span className="text-muted-foreground block text-[12px]">
+                Bewerbung · {PROFILE.role}
+              </span>
+            </span>
           </div>
-
-          <div className="bg-card px-5 py-5">
-            <p className="flex items-center gap-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-              <span
-                aria-hidden
-                className="inline-block h-0 w-4 border-t-2"
-                style={{ borderColor: C.real }}
-              />
-              CM3 real
-            </p>
-            <p
-              className="tnum mt-2 text-[30px] leading-none font-semibold"
-              style={{ color: C.real }}
-            >
-              {eurCompact(d.real.cm3)}
-            </p>
-            <p className="tnum mt-1.5 text-[12px] text-muted-foreground">
-              {pct(d.real.cm3Margin)} Marge · Erstattungen bei der Ursprungsbestellung
-            </p>
-          </div>
-
-          <div className="bg-accent-soft/50 px-5 py-5">
-            <p className="text-[11px] font-medium tracking-wide text-accent-strong uppercase">
-              Delta reported − real
-            </p>
-            <p className="tnum mt-2 text-[30px] leading-none font-semibold text-accent-strong">
-              {eurDelta(deltaCm3)}
-            </p>
-            <p className="tnum mt-1.5 text-[12px] text-muted-foreground">
-              {pp(deltaMargin)} CM3-Marge · {eurDelta(deltaNet)} Netto-Umsatz
-            </p>
-            {peak && (
-              <p className="tnum mt-1 text-[12px] text-muted-foreground">
-                Spitzenmonat {monthLabel(peak.month)}: {eurDelta(peakDelta)} ({pp(peakMargin)})
-              </p>
-            )}
+          <p className="text-muted-foreground mt-4 text-[12.5px] leading-relaxed">
+            Ich denke in Deckungsbeiträgen und Periodenabgrenzung – und baue die Auswertung selbst,
+            statt sie zu beauftragen und auf den nächsten Sprint zu warten.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <SmallLink href={PROFILE.linkedin}>LinkedIn</SmallLink>
+            <SmallLink href={PROFILE.repo}>Quellcode</SmallLink>
             <Link
-              href="/shopify-vs-realitaet"
-              className="mt-3 inline-flex items-center gap-1 text-[12px] font-medium text-accent-strong hover:underline"
+              href="/ueber-diese-arbeitsprobe"
+              className="border-border text-muted-foreground hover:border-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
             >
-              Woher die Differenz kommt
-              <ArrowRight className="size-3.5" />
+              Mehr zur Arbeitsprobe
             </Link>
           </div>
         </div>
-        <CardNote>
-          Beide Spalten rechnen mit identischem Brutto-Umsatz, identischen Rabatten, Bestellungen
-          und Marketingkosten. Der einzige Unterschied ist das Datum, dem eine Erstattung
-          zugeordnet wird. {describeFilters({ ...filters, presetId: null })}.
-        </CardNote>
-      </Card>
 
-      {/* ─── KPI-Kacheln ───────────────────────────────────────────────── */}
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <KpiCard
-          label="Netto-Umsatz"
-          value={eurCompact(d.real.netRevenue)}
-          secondary={`${eur(d.real.aov)} AOV`}
-          hint="Brutto − Rabatte − Erstattungen"
-        />
-        <KpiCard
-          label="CM1"
-          value={eurCompact(d.real.cm1)}
-          secondary={pct(d.real.cm1Margin)}
-          hint="nach Wareneinsatz der behaltenen Ware"
-        />
-        <KpiCard
-          label="CM2"
-          value={eurCompact(d.real.cm2)}
-          secondary={pct(d.real.cm2Margin)}
-          hint="nach Logistik, Retouren, Payment, Provisionen"
-        />
-        <KpiCard
-          label="CM3"
-          value={eurCompact(d.real.cm3)}
-          secondary={pct(d.real.cm3Margin)}
-          delta={`${eurDelta(-deltaCm3)} vs. reported`}
-          deltaTone="negative"
-          accent
-          hint="nach Marketingkosten"
-        />
-        <KpiCard
-          label="MER"
-          value={ratio(d.real.mer)}
-          secondary={`${eurCompact(d.spend)} Spend`}
-          hint="Netto-Umsatz je € Marketing"
-        />
-        <KpiCard
-          label="POAS"
-          value={ratio(poas)}
-          secondary={`CM2 je € Spend`}
-          deltaTone={poas < 1 ? "negative" : "positive"}
-          hint="Deckungsbeitrag 2 der attribuierten Bestellungen"
-        />
-        <KpiCard
-          label="Retourenquote"
-          value={pct(d.real.returnRate)}
-          secondary={`${pct(d.reported.returnRate)} reported`}
-          hint="wertbasiert: Erstattungen / Brutto-Umsatz"
-        />
-        <KpiCard
-          label="Bestellungen"
-          value={new Intl.NumberFormat("de-DE", { notation: "compact" }).format(d.real.orders)}
-          secondary={`${pct(d.real.newOrders / Math.max(1, d.real.orders))} Neukunden`}
-          hint="im gewählten Zeitraum"
-        />
-      </div>
-
-      {/* ─── Monatsverlauf ─────────────────────────────────────────────── */}
-      <Card className="mb-6">
-        <CardHeader
-          title="Netto-Umsatz und CM3 je Monat"
-          subtitle="Alles in Euro – eine Achse. Die gestrichelte Linie ist der Standardreport, die durchgezogene die periodengerechte Sicht."
-          action={
-            <Legend
-              items={[
-                { label: "Netto-Umsatz", color: C.neutralFaint, swatch: "box" },
-                { label: "CM3 real", color: C.real },
-                { label: "CM3 reported", color: C.reported, dashed: true },
-              ]}
-            />
-          }
-        />
-        <div className="px-2 pb-4">
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={chartData} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
-              <CartesianGrid {...GRID} />
-              <XAxis dataKey="month" {...AXIS} interval="preserveStartEnd" minTickGap={16} />
-              <YAxis
-                {...AXIS}
-                width={62}
-                tickFormatter={(v: number) => eurCompact(v).replace(" €", "")}
-              />
-              <Tooltip
-                cursor={{ fill: "rgba(26,26,26,0.03)" }}
-                content={({ active, payload, label }) =>
-                  active && payload?.length ? (
-                    <TooltipCard
-                      title={String(label)}
-                      rows={[
-                        {
-                          label: "Netto-Umsatz",
-                          value: eur(Number(payload[0].payload.netRevenue)),
-                          color: C.neutralFaint,
-                        },
-                        {
-                          label: "CM3 real",
-                          value: eur(Number(payload[0].payload.cm3Real)),
-                          color: C.real,
-                        },
-                        {
-                          label: "CM3 reported",
-                          value: eur(Number(payload[0].payload.cm3Reported)),
-                          color: C.reported,
-                          dashed: true,
-                        },
-                      ]}
-                      note={`Differenz ${eurDelta(
-                        Number(payload[0].payload.cm3Reported) -
-                          Number(payload[0].payload.cm3Real),
-                      )}`}
-                    />
-                  ) : null
-                }
-              />
-              <Bar
-                dataKey="netRevenue"
-                fill={C.neutralFaint}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={26}
-                isAnimationActive={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="cm3Reported"
-                stroke={C.reported}
-                strokeWidth={2}
-                strokeDasharray="5 4"
-                dot={false}
-                isAnimationActive={false}
-                activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
-              />
-              <Line
-                type="monotone"
-                dataKey="cm3Real"
-                stroke={C.real}
-                strokeWidth={2}
-                dot={false}
-                isAnimationActive={false}
-                activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+        <div className="card px-5 py-5">
+          <h2 className="text-[13px] font-semibold">Der Datensatz</h2>
+          <dl className="mt-3 space-y-2 text-[12.5px]">
+            <Fact label="Datenstand" value={dateLabel(TODAY)} />
+            <Fact label="Zeitraum" value={`${meta.months} Monate ab Jan 2025`} />
+            <Fact label="Netto-Umsatz" value={eurCompact(meta.netRevenueTotal)} />
+            <Fact label="Marken" value={BRANDS.join(", ")} compact />
+            <Fact label="Kanäle" value={CHANNELS.join(", ")} compact />
+            <Fact label="Märkte" value={MARKETS.join(", ")} compact />
+            <Fact label="Retourenfenster" value={`${REFUND_WINDOW_DAYS} Tage`} />
+          </dl>
+          <p className="border-border text-subtle-foreground mt-4 border-t pt-3 text-[11.5px] leading-relaxed">
+            Alle Zahlen sind synthetisch und stammen aus einem deterministischen Generator mit
+            festem Seed. Keine echten Zahlen der SNOCKS GmbH.
+          </p>
         </div>
-        <CardNote>
-          Im November 2025 liegt die gestrichelte Linie deutlich über der durchgezogenen: die
-          Black-Week-Bestellungen sind gebucht, ihre Retouren treffen erst im Dezember und Januar
-          ein.
-        </CardNote>
-      </Card>
 
-      {/* ─── Dimensionen ───────────────────────────────────────────────── */}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader
-            title="Marken im Vergleich"
-            subtitle="Periodengerechte Sicht. Retourenquote erklärt den Großteil der Margenunterschiede."
-          />
-          <DataTable columns={brandColumns} rows={d.byBrand} />
-          <CardNote>
-            OCEANSAPART liefert hohen Umsatz bei deutlich höherer Retourenquote – Activewear mit
-            Größenunsicherheit. femtis ist die margenstärkste Marke im Portfolio.
-          </CardNote>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="Kanäle und Märkte"
-            subtitle="Marktplätze tragen Provisionen von 15–23 % und höhere Retouren – der CM2 fällt entsprechend ab."
-          />
-          <DataTable columns={channelColumns} rows={d.byChannel} />
-          <div className="border-t border-border">
-            <DataTable columns={marketColumns} rows={d.byMarket} />
-          </div>
-        </Card>
-      </div>
+        <div className="card px-5 py-5">
+          <h2 className="text-[13px] font-semibold">Die Kernaussage</h2>
+          <p className="text-muted-foreground mt-2.5 text-[12.5px] leading-relaxed">
+            Shopify bucht eine Retoure an dem Tag, an dem sie verarbeitet wird – nicht an dem der
+            Bestellung. Die Black-Week-Kohorte {dateLabel(BLACK_WEEK_2025.start)} verliert dadurch
+            über {REFUND_WINDOW_DAYS} Tage{" "}
+            <strong className="text-foreground font-semibold">{ppAbs(bw.decay)}</strong> Marge,
+            sichtbar erst im Folgemonat.
+          </p>
+          <Link
+            href="/shopify-vs-realitaet"
+            className="text-accent-strong mt-3 inline-flex items-center gap-1 text-[12px] font-medium hover:underline"
+          >
+            Beleg ansehen
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </aside>
     </div>
   );
 }
 
-// ─── Tabellenspalten ────────────────────────────────────────────────────
+function Fact({ label, value, compact }: { label: string; value: string; compact?: boolean }) {
+  return (
+    <div
+      className={compact ? "flex flex-col gap-0.5" : "flex items-baseline justify-between gap-4"}
+    >
+      <dt className="text-muted-foreground shrink-0">{label}</dt>
+      <dd className={compact ? "text-foreground text-[12px]" : "tnum font-medium"}>{value}</dd>
+    </div>
+  );
+}
 
-const brandColumns: Column<DimensionRow<keyof typeof BRAND_ASSUMPTIONS>>[] = [
-  {
-    key: "brand",
-    header: "Marke",
-    render: (r) => (
-      <span className="flex items-center gap-2">
-        <span
-          aria-hidden
-          className="inline-block size-2.5 shrink-0 rounded-sm"
-          style={{ background: C.brands[r.key] }}
-        />
-        <span className="font-medium">{r.key}</span>
-        <span className="hidden text-[11px] text-subtle-foreground sm:inline">
-          {BRAND_ASSUMPTIONS[r.key].category}
-        </span>
-      </span>
-    ),
-  },
-  { key: "net", header: "Netto-Umsatz", align: "right", render: (r) => eurCompact(r.real.netRevenue) },
-  { key: "cm2", header: "CM2 %", align: "right", render: (r) => pct(r.real.cm2Margin) },
-  { key: "cm3", header: "CM3 %", align: "right", render: (r) => pct(r.real.cm3Margin) },
-  { key: "ret", header: "Retouren", align: "right", render: (r) => pct(r.real.returnRate) },
-  {
-    key: "delta",
-    header: "Δ reported",
-    align: "right",
-    title: "CM3 nach Erstattungsdatum minus CM3 nach Bestell-Kohorte",
-    render: (r) => (
-      <span className="text-accent-strong">{eurDelta(r.reported.cm3 - r.real.cm3)}</span>
-    ),
-  },
-];
+function SmallLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="border-border text-muted-foreground hover:border-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
+    >
+      {children}
+      <ArrowUpRight className="size-3" />
+    </a>
+  );
+}
 
-const channelColumns: Column<DimensionRow<"Onlineshop" | "Amazon" | "Zalando">>[] = [
-  { key: "channel", header: "Kanal", render: (r) => <span className="font-medium">{r.key}</span> },
-  { key: "net", header: "Netto-Umsatz", align: "right", render: (r) => eurCompact(r.real.netRevenue) },
-  { key: "cm1", header: "CM1 %", align: "right", render: (r) => pct(r.real.cm1Margin) },
-  { key: "cm2", header: "CM2 %", align: "right", render: (r) => pct(r.real.cm2Margin) },
-  { key: "ret", header: "Retouren", align: "right", render: (r) => pct(r.real.returnRate) },
-  { key: "aov", header: "AOV", align: "right", render: (r) => eur(r.real.aov) },
-];
-
-const marketColumns: Column<DimensionRow<keyof typeof MARKET_ASSUMPTIONS>>[] = [
-  {
-    key: "market",
-    header: "Markt",
-    render: (r) => (
-      <span>
-        <span className="font-medium">{r.key}</span>{" "}
-        <span className="hidden text-[11px] text-subtle-foreground sm:inline">
-          {MARKET_ASSUMPTIONS[r.key].label}
-        </span>
-      </span>
-    ),
-  },
-  { key: "net", header: "Netto-Umsatz", align: "right", render: (r) => eurCompact(r.real.netRevenue) },
-  { key: "cm1", header: "CM1 %", align: "right", render: (r) => pct(r.real.cm1Margin) },
-  { key: "cm2", header: "CM2 %", align: "right", render: (r) => pct(r.real.cm2Margin) },
-  { key: "ret", header: "Retouren", align: "right", render: (r) => pct(r.real.returnRate) },
-  { key: "aov", header: "AOV", align: "right", render: (r) => eur(r.real.aov) },
-];
+/** Dekorative Marke – weich, zurückhaltend, ohne Aussage. */
+function Starburst() {
+  return (
+    <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden className="opacity-90">
+      <defs>
+        <radialGradient id="sb" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#cc5b8b" stopOpacity="0.55" />
+          <stop offset="45%" stopColor="#8f63c8" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="#06638c" stopOpacity="0.1" />
+        </radialGradient>
+      </defs>
+      <path
+        d="M66 2c3 30 10 46 24 56-14 10-21 26-24 56-3-30-10-46-24-56C56 48 63 32 66 2z"
+        fill="url(#sb)"
+      />
+      <path
+        d="M2 66c30-3 46-10 56-24 10 14 26 21 56 24-30 3-46 10-56 24C48 76 32 69 2 66z"
+        fill="url(#sb)"
+      />
+    </svg>
+  );
+}

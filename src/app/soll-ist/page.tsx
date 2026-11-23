@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { AXIS, C, GRID, Legend, TooltipCard } from "@/components/charts/chart-kit";
 import { FilterBar } from "@/components/filters/filter-bar";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -51,8 +51,8 @@ export default function PlanActualPage() {
         insight={
           <>
             Der Netto-Umsatz liegt{" "}
-            <strong className="font-semibold text-foreground">{eurDelta(total.variance)}</strong>{" "}
-            ({pct(safeDiv(total.variance, total.planNetRevenue))}) gegenüber Plan. Größter
+            <strong className="text-foreground font-semibold">{eurDelta(total.variance)}</strong> (
+            {pct(safeDiv(total.variance, total.planNetRevenue))}) gegenüber Plan. Größter
             Einzeltreiber ist der {biggest.label}-Effekt mit {eurDelta(biggest.value)} – eine
             Abweichung ist erst dann eine Information, wenn man weiß, woher sie kommt.
           </>
@@ -107,10 +107,23 @@ export default function PlanActualPage() {
               ]}
             />
           }
+
+          info={
+            <>
+              Mengeneffekt = (Ist-Bestellungen − Plan-Bestellungen) × Plan-AOV. Preiseffekt =
+              (Ist-AOV − Plan-AOV) × Ist-Bestellungen. Mixeffekt = Verschiebung zwischen Marken mit
+              unterschiedlichem Bestellwert. Retoureneffekt = −(Ist-Retourenquote −
+              Plan-Retourenquote) × Ist-Bestellwert.
+            </>
+          }
         />
         <div className="px-2 pb-4">
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData} margin={{ top: 8, right: 16, bottom: 4, left: 8 }} stackOffset="sign">
+            <BarChart
+              data={chartData}
+              margin={{ top: 8, right: 16, bottom: 4, left: 8 }}
+              stackOffset="sign"
+            >
               <CartesianGrid {...GRID} />
               <XAxis dataKey="month" {...AXIS} interval="preserveStartEnd" minTickGap={18} />
               <YAxis
@@ -126,42 +139,79 @@ export default function PlanActualPage() {
                     <TooltipCard
                       title={String(label)}
                       rows={[
-                        { label: "Menge", value: eur(Number(payload[0].payload.volume)), color: C.reported },
-                        { label: "Preis", value: eur(Number(payload[0].payload.price)), color: C.neutral },
-                        { label: "Mix", value: eur(Number(payload[0].payload.mix)), color: C.neutralSoft },
-                        { label: "Retouren", value: eur(Number(payload[0].payload.returns)), color: C.real },
+                        {
+                          label: "Menge",
+                          value: eur(Number(payload[0].payload.volume)),
+                          color: C.reported,
+                        },
+                        {
+                          label: "Preis",
+                          value: eur(Number(payload[0].payload.price)),
+                          color: C.neutral,
+                        },
+                        {
+                          label: "Mix",
+                          value: eur(Number(payload[0].payload.mix)),
+                          color: C.neutralSoft,
+                        },
+                        {
+                          label: "Retouren",
+                          value: eur(Number(payload[0].payload.returns)),
+                          color: C.real,
+                        },
                       ]}
                       note={`Summe ${eurDelta(Number(payload[0].payload.variance))}`}
                     />
                   ) : null
                 }
               />
-              <Bar dataKey="volume" stackId="v" fill={C.reported} isAnimationActive={false} maxBarSize={28} />
-              <Bar dataKey="price" stackId="v" fill={C.neutral} isAnimationActive={false} maxBarSize={28} />
-              <Bar dataKey="mix" stackId="v" fill={C.neutralSoft} isAnimationActive={false} maxBarSize={28} />
-              <Bar dataKey="returns" stackId="v" fill={C.real} isAnimationActive={false} maxBarSize={28} />
+              <Bar
+                dataKey="volume"
+                stackId="v"
+                fill={C.reported}
+                isAnimationActive={false}
+                maxBarSize={28}
+              />
+              <Bar
+                dataKey="price"
+                stackId="v"
+                fill={C.neutral}
+                isAnimationActive={false}
+                maxBarSize={28}
+              />
+              <Bar
+                dataKey="mix"
+                stackId="v"
+                fill={C.neutralSoft}
+                isAnimationActive={false}
+                maxBarSize={28}
+              />
+              <Bar
+                dataKey="returns"
+                stackId="v"
+                fill={C.real}
+                isAnimationActive={false}
+                maxBarSize={28}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <CardNote>
-          Mengeneffekt = (Ist-Bestellungen − Plan-Bestellungen) × Plan-AOV. Preiseffekt =
-          (Ist-AOV − Plan-AOV) × Ist-Bestellungen. Mixeffekt = Verschiebung zwischen Marken mit
-          unterschiedlichem Bestellwert. Retoureneffekt = −(Ist-Retourenquote −
-          Plan-Retourenquote) × Ist-Bestellwert.
-        </CardNote>
       </Card>
 
       <Card>
         <CardHeader
           title="Monatsübersicht"
           subtitle="Plan, Ist und die Zerlegung der Abweichung."
+
+          info={
+            <>
+              Der Plan liegt je Marke und Monat vor. Bei aktivem Kanal- oder Marktfilter wird er mit
+              dem Umsatzanteil der Auswahl skaliert, damit Plan und Ist dieselbe Grundmenge
+              beschreiben.
+            </>
+          }
         />
         <DataTable columns={columns} rows={rows} footer={total} minWidth={900} />
-        <CardNote>
-          Der Plan liegt je Marke und Monat vor. Bei aktivem Kanal- oder Marktfilter wird er mit
-          dem Umsatzanteil der Auswahl skaliert, damit Plan und Ist dieselbe Grundmenge
-          beschreiben.
-        </CardNote>
       </Card>
     </div>
   );

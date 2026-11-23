@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FilterBar } from "@/components/filters/filter-bar";
 import { C, Legend } from "@/components/charts/chart-kit";
 import { Waterfall, type WaterfallStep } from "@/components/charts/waterfall";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { CHANNEL_ASSUMPTIONS, UNIT_COSTS } from "@/config/assumptions";
@@ -73,10 +73,10 @@ export default function ContributionMarginPage() {
         insight={
           <>
             Von {eurCompact(cm.gross)} Brutto-Umsatz bleiben{" "}
-            <strong className="font-semibold text-foreground">{eurCompact(cm.cm3)}</strong> CM3 –{" "}
-            {pct(cm.cm3Margin)} vom Netto-Umsatz. Der größte Block nach dem Wareneinsatz sind
-            nicht die Marktplatzprovisionen, sondern Logistik und Retourenbearbeitung mit{" "}
-            {pct(costShare)} des Netto-Umsatzes.
+            <strong className="text-foreground font-semibold">{eurCompact(cm.cm3)}</strong> CM3 –{" "}
+            {pct(cm.cm3Margin)} vom Netto-Umsatz. Der größte Block nach dem Wareneinsatz sind nicht
+            die Marktplatzprovisionen, sondern Logistik und Retourenbearbeitung mit {pct(costShare)}{" "}
+            des Netto-Umsatzes.
           </>
         }
       />
@@ -99,15 +99,18 @@ export default function ContributionMarginPage() {
               <ViewToggle view={view} onChange={setView} />
             </div>
           }
+
+          info={
+            <>
+              Kontrolle: Netto-Umsatz {eur(cm.netRevenue)} − COGS {eur(cm.cogs)} = CM1 {eur(cm.cm1)}
+              ; CM1 − variable Kosten {eur(cm.variableCosts)} = CM2 {eur(cm.cm2)}; CM2 − Marketing{" "}
+              {eur(cm.marketing)} = CM3 {eur(cm.cm3)}.
+            </>
+          }
         />
         <div className="px-2 pb-2">
           <Waterfall steps={steps} reference={cm.netRevenue} />
         </div>
-        <CardNote>
-          Kontrolle: Netto-Umsatz {eur(cm.netRevenue)} − COGS {eur(cm.cogs)} = CM1 {eur(cm.cm1)};
-          CM1 − variable Kosten {eur(cm.variableCosts)} = CM2 {eur(cm.cm2)}; CM2 − Marketing{" "}
-          {eur(cm.marketing)} = CM3 {eur(cm.cm3)}.
-        </CardNote>
       </Card>
 
       <div className="grid gap-4">
@@ -128,6 +131,17 @@ export default function ContributionMarginPage() {
           <CardHeader
             title="Deckungsbeitrag nach Kanal"
             subtitle="Marktplätze kosten Provision, liefern aber Reichweite ohne eigenen Marketing-Spend – im CM3 dreht sich das Bild gegenüber dem CM2."
+
+            info={
+              <>
+                Marketing wird den Kanälen anteilig nach Netto-Umsatz zugerechnet. In der Praxis
+                würde ich hier den tatsächlich kanalbezogenen Spend hinterlegen – Amazon Ads und
+                Zalando ZMS getrennt vom Shop-Budget.{" "}
+                {Object.entries(CHANNEL_ASSUMPTIONS)
+                  .map(([k, v]) => `${k}: ${(v.marketplaceFeeRate * 100).toFixed(0)} % Provision`)
+                  .join(" · ")}
+              </>
+            }
           />
           <DataTable
             columns={cmColumns(view)}
@@ -135,14 +149,6 @@ export default function ContributionMarginPage() {
             footer={totalRow(d.byChannel, cm)}
             minWidth={1020}
           />
-          <CardNote>
-            Marketing wird den Kanälen anteilig nach Netto-Umsatz zugerechnet. In der Praxis würde
-            ich hier den tatsächlich kanalbezogenen Spend hinterlegen – Amazon Ads und Zalando ZMS
-            getrennt vom Shop-Budget.{" "}
-            {Object.entries(CHANNEL_ASSUMPTIONS)
-              .map(([k, v]) => `${k}: ${(v.marketplaceFeeRate * 100).toFixed(0)} % Provision`)
-              .join(" · ")}
-          </CardNote>
         </Card>
       </div>
     </div>
@@ -151,7 +157,7 @@ export default function ContributionMarginPage() {
 
 function ViewToggle({ view, onChange }: { view: ViewKey; onChange: (v: ViewKey) => void }) {
   return (
-    <div className="flex shrink-0 rounded-full border border-border p-0.5 text-[11.5px]">
+    <div className="border-border flex shrink-0 rounded-full border p-0.5 text-[11.5px]">
       {(
         [
           ["cohort", "Bestell-Kohorte"],
@@ -164,8 +170,8 @@ function ViewToggle({ view, onChange }: { view: ViewKey; onChange: (v: ViewKey) 
           onClick={() => onChange(key)}
           className={
             view === key
-              ? "rounded-full bg-accent-soft px-2.5 py-1 font-medium text-accent-strong"
-              : "rounded-full px-2.5 py-1 text-muted-foreground"
+              ? "bg-accent-soft text-accent-strong rounded-full px-2.5 py-1 font-medium"
+              : "text-muted-foreground rounded-full px-2.5 py-1"
           }
         >
           {label}
@@ -190,7 +196,7 @@ function cmColumns(view: ViewKey): Column<DimensionRow<string>>[] {
   return [
     {
       key: "key",
-      header: "",
+      header: "Segment",
       render: (r) => (
         <span className="flex items-center gap-2 font-medium">
           {C.brands[r.key] && (
@@ -212,7 +218,12 @@ function cmColumns(view: ViewKey): Column<DimensionRow<string>>[] {
       align: "right",
       render: (r) => eurCompact(-v(r).refunds),
     },
-    { key: "net", header: "Netto-Umsatz", align: "right", render: (r) => eurCompact(v(r).netRevenue) },
+    {
+      key: "net",
+      header: "Netto-Umsatz",
+      align: "right",
+      render: (r) => eurCompact(v(r).netRevenue),
+    },
     { key: "cogs", header: "COGS", align: "right", render: (r) => eurCompact(-v(r).cogs) },
     {
       key: "cm1",
@@ -221,7 +232,9 @@ function cmColumns(view: ViewKey): Column<DimensionRow<string>>[] {
       render: (r) => (
         <span>
           {eurCompact(v(r).cm1)}
-          <span className="ml-1.5 text-[11px] text-subtle-foreground">{pct(v(r).cm1Margin, 0)}</span>
+          <span className="text-subtle-foreground ml-1.5 text-[11px]">
+            {pct(v(r).cm1Margin, 0)}
+          </span>
         </span>
       ),
     },
@@ -239,7 +252,9 @@ function cmColumns(view: ViewKey): Column<DimensionRow<string>>[] {
       render: (r) => (
         <span>
           {eurCompact(v(r).cm2)}
-          <span className="ml-1.5 text-[11px] text-subtle-foreground">{pct(v(r).cm2Margin, 0)}</span>
+          <span className="text-subtle-foreground ml-1.5 text-[11px]">
+            {pct(v(r).cm2Margin, 0)}
+          </span>
         </span>
       ),
     },
@@ -249,9 +264,9 @@ function cmColumns(view: ViewKey): Column<DimensionRow<string>>[] {
       header: "CM3",
       align: "right",
       render: (r) => (
-        <span className="font-semibold" style={{ color: C.real }}>
+        <span className="font-semibold" style={{ color: C.realInk }}>
           {eurCompact(v(r).cm3)}
-          <span className="ml-1.5 text-[11px] font-normal text-subtle-foreground">
+          <span className="text-subtle-foreground ml-1.5 text-[11px] font-normal">
             {pct(v(r).cm3Margin, 0)}
           </span>
         </span>

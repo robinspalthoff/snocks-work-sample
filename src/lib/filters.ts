@@ -27,8 +27,20 @@ export function buildPresets(months: string[]): PeriodPreset[] {
     { id: "ytd2026", label: "2026 YTD", from: "2026-01", to: last, hint: "Jan – Nov 26" },
     { id: "last12", label: "Letzte 12 Monate", from: last12, to: last },
     { id: "fy2025", label: "Geschäftsjahr 2025", from: "2025-01", to: "2025-12" },
-    { id: "q4-2025", label: "Q4 2025", from: "2025-10", to: "2025-12", hint: "Black Week + Nachlauf" },
-    { id: "bw2025", label: "Nov + Dez 2025", from: "2025-11", to: "2025-12", hint: "Black Week 2025" },
+    {
+      id: "q4-2025",
+      label: "Q4 2025",
+      from: "2025-10",
+      to: "2025-12",
+      hint: "Black Week + Nachlauf",
+    },
+    {
+      id: "bw2025",
+      label: "Nov + Dez 2025",
+      from: "2025-11",
+      to: "2025-12",
+      hint: "Black Week 2025",
+    },
   ];
 }
 

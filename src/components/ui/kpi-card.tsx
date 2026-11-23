@@ -27,14 +27,14 @@ export function KpiCard({
         className,
       )}
     >
-      <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+      <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
         {label}
       </p>
       <p className="tnum mt-2 text-[21px] leading-none font-semibold tracking-tight sm:text-[26px]">
         {value}
       </p>
       <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        {secondary && <span className="tnum text-[12px] text-muted-foreground">{secondary}</span>}
+        {secondary && <span className="tnum text-muted-foreground text-[12px]">{secondary}</span>}
         {delta && (
           <span
             className={cn(
@@ -48,7 +48,7 @@ export function KpiCard({
           </span>
         )}
       </div>
-      {hint && <p className="mt-2 text-[10.5px] leading-snug text-subtle-foreground">{hint}</p>}
+      {hint && <p className="text-subtle-foreground mt-2 text-[10.5px] leading-snug">{hint}</p>}
     </div>
   );
 }

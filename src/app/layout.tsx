@@ -10,7 +10,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Built for SNOCKS · Contribution Margin Cockpit",
+  title: "Work Sample · Built for SNOCKS",
   description:
     "Bewerbungs-Arbeitsprobe von Robin Spalthoff: Deckungsbeitragsrechnung nach Bestell-Kohorte statt nach Erstattungsdatum. Alle Daten synthetisch.",
   // Arbeitsprobe, kein öffentliches Produkt – bewusst nicht indexierbar.

@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { AXIS, C, GRID, Legend, TooltipCard } from "@/components/charts/chart-kit";
 import { FilterBar } from "@/components/filters/filter-bar";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { BLACK_WEEK_2025, REFUND_WINDOW_DAYS } from "@/config/assumptions";
@@ -108,11 +108,11 @@ export default function ShopifyVsRealityPage() {
         insight={
           <>
             Die Black-Week-2025-Kohorte startet mit{" "}
-            <strong className="font-semibold text-foreground">{pct(day0.bw / 100)}</strong>{" "}
+            <strong className="text-foreground font-semibold">{pct(day0.bw / 100)}</strong>{" "}
             CM3-Marge und landet 60 Tage später bei{" "}
-            <strong className="font-semibold text-foreground">{pct(dayEnd.bw / 100)}</strong> – ein
+            <strong className="text-foreground font-semibold">{pct(dayEnd.bw / 100)}</strong> – ein
             Margenverfall von{" "}
-            <strong className="font-semibold text-foreground">{ppAbs(decay / 100)}</strong>, der im
+            <strong className="text-foreground font-semibold">{ppAbs(decay / 100)}</strong>, der im
             Standardreport erst in den Folgemonaten auftaucht.
           </>
         }
@@ -123,19 +123,19 @@ export default function ShopifyVsRealityPage() {
       {/* ─── Die Erklärung in drei Sätzen ──────────────────────────────── */}
       <Card className="mb-6 px-5 py-5">
         <h2 className="mb-2 text-[13px] font-semibold">Worum es geht, in drei Sätzen</h2>
-        <ol className="max-w-3xl list-decimal space-y-1.5 pl-4 text-[13px] leading-relaxed text-muted-foreground">
+        <ol className="text-muted-foreground max-w-3xl list-decimal space-y-1.5 pl-4 text-[13px] leading-relaxed">
           <li>
             Der Standardreport im Shop-Backend bucht eine Erstattung an dem Tag, an dem sie
             ausgeführt wird – nicht an dem Tag, an dem die Bestellung eingegangen ist.
           </li>
           <li>
-            Zwischen Bestellung und Erstattung liegen im Schnitt rund zwei Wochen, bei
-            Einzelfällen bis zu {REFUND_WINDOW_DAYS} Tage. Nach einem Sales Event sind die
-            Umsätze also schon gebucht, die zugehörigen Retouren aber noch nicht.
+            Zwischen Bestellung und Erstattung liegen im Schnitt rund zwei Wochen, bei Einzelfällen
+            bis zu {REFUND_WINDOW_DAYS} Tage. Nach einem Sales Event sind die Umsätze also schon
+            gebucht, die zugehörigen Retouren aber noch nicht.
           </li>
           <li>
-            Ergebnis: Der Monat des Sales Events sieht zu gut aus, der Folgemonat zu schlecht –
-            und beide Monate führen zu falschen Entscheidungen über Rabatthöhe und Ad-Spend.
+            Ergebnis: Der Monat des Sales Events sieht zu gut aus, der Folgemonat zu schlecht – und
+            beide Monate führen zu falschen Entscheidungen über Rabatthöhe und Ad-Spend.
           </li>
         </ol>
       </Card>
@@ -233,11 +233,7 @@ export default function ShopifyVsRealityPage() {
               <LineChart data={monthly} margin={{ top: 8, right: 16, bottom: 4, left: 8 }}>
                 <CartesianGrid {...GRID} />
                 <XAxis dataKey="month" {...AXIS} interval="preserveStartEnd" minTickGap={18} />
-                <YAxis
-                  {...AXIS}
-                  width={44}
-                  tickFormatter={(v: number) => `${v.toFixed(0)} %`}
-                />
+                <YAxis {...AXIS} width={44} tickFormatter={(v: number) => `${v.toFixed(0)} %`} />
                 <Tooltip
                   content={({ active, payload, label }) =>
                     active && payload?.length ? (
@@ -302,6 +298,14 @@ export default function ShopifyVsRealityPage() {
                 { label: "nach Erstattungsdatum", color: C.reported, dashed: true },
               ]}
             />
+          }
+
+          info={
+            <>
+              Die rosa Kurve springt mit den Bestellungen der Black Week nach oben. Die graue Kurve
+              folgt mit Verzug und erreicht ihren Höhepunkt erst Mitte Dezember – zu einem
+              Zeitpunkt, an dem im Report längst ein neuer Monat läuft.
+            </>
           }
         />
         <div className="px-2 pb-4">
@@ -372,11 +376,6 @@ export default function ShopifyVsRealityPage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <CardNote>
-          Die rosa Kurve springt mit den Bestellungen der Black Week nach oben. Die graue Kurve
-          folgt mit Verzug und erreicht ihren Höhepunkt erst Mitte Dezember – zu einem Zeitpunkt,
-          an dem im Report längst ein neuer Monat läuft.
-        </CardNote>
       </Card>
 
       {/* ─── Kohortenverlauf ───────────────────────────────────────────── */}
@@ -391,7 +390,7 @@ export default function ShopifyVsRealityPage() {
               <select
                 value={compareId}
                 onChange={(e) => setCompareId(e.target.value)}
-                className="rounded-md border border-border bg-card px-2 py-1 text-[12px]"
+                className="border-border bg-card rounded-md border px-2 py-1 text-[12px]"
                 aria-label="Vergleichskohorte"
               >
                 {cohorts.cohorts
@@ -404,13 +403,25 @@ export default function ShopifyVsRealityPage() {
               </select>
             </div>
           }
+
+          info={
+            <>
+              Am Bestelltag sieht jede Kohorte gut aus – es ist noch nichts zurückgekommen. Der
+              Unterschied ist die Fallhöhe: die Black-Week-Kohorte verliert {ppAbs(decay / 100)},
+              weil Rabatt und Retourenquote gleichzeitig hoch sind.
+            </>
+          }
         />
         <div className="px-2 pb-2">
           <Legend
             className="px-3 pb-2"
             items={[
               { label: "Black Week 2025", color: C.real },
-              { label: cohorts.cohorts[cmpIdx]?.label ?? "Vergleich", color: C.neutral, dashed: true },
+              {
+                label: cohorts.cohorts[cmpIdx]?.label ?? "Vergleich",
+                color: C.neutral,
+                dashed: true,
+              },
             ]}
           />
           <ResponsiveContainer width="100%" height={300}>
@@ -484,11 +495,6 @@ export default function ShopifyVsRealityPage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <CardNote>
-          Am Bestelltag sieht jede Kohorte gut aus – es ist noch nichts zurückgekommen. Der
-          Unterschied ist die Fallhöhe: die Black-Week-Kohorte verliert {ppAbs(decay / 100)}, weil
-          Rabatt und Retourenquote gleichzeitig hoch sind.
-        </CardNote>
       </Card>
 
       {/* ─── Kohortentabelle ───────────────────────────────────────────── */}
@@ -517,7 +523,7 @@ const cohortColumns: Column<CohortRow>[] = [
     key: "label",
     header: "Kohorte",
     render: (r) => (
-      <span className={r.highlight ? "font-semibold text-accent-strong" : "font-medium"}>
+      <span className={r.highlight ? "text-accent-strong font-semibold" : "font-medium"}>
         {r.label}
       </span>
     ),
@@ -536,8 +542,6 @@ const cohortColumns: Column<CohortRow>[] = [
     key: "decay",
     header: "Verfall",
     align: "right",
-    render: (r) => (
-      <span className="text-negative">{pp(r.d60.cm3Margin - r.d0.cm3Margin)}</span>
-    ),
+    render: (r) => <span className="text-negative">{pp(r.d60.cm3Margin - r.d0.cm3Margin)}</span>,
   },
 ];

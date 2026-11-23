@@ -26,19 +26,16 @@ export function DataTable<T>({
 }) {
   return (
     <div className={cn("overflow-x-auto", className)}>
-      <table
-        className="w-full border-collapse text-[12.5px]"
-        style={{ minWidth: `${minWidth}px` }}
-      >
+      <table className="w-full border-collapse text-[12.5px]" style={{ minWidth: `${minWidth}px` }}>
         <thead>
-          <tr className="border-b border-border">
+          <tr className="border-border border-b">
             {columns.map((c) => (
               <th
                 key={c.key}
                 title={c.title}
                 style={{ width: c.width }}
                 className={cn(
-                  "px-3 py-2 text-[10.5px] font-semibold tracking-[0.06em] text-subtle-foreground uppercase",
+                  "text-subtle-foreground px-3 py-2 text-[10.5px] font-semibold tracking-[0.06em] uppercase",
                   c.align === "right" ? "text-right" : "text-left",
                 )}
               >
@@ -49,14 +46,11 @@ export function DataTable<T>({
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-b border-border/60 last:border-0 hover:bg-muted/50">
+            <tr key={i} className="border-border/60 hover:bg-muted/50 border-b last:border-0">
               {columns.map((c) => (
                 <td
                   key={c.key}
-                  className={cn(
-                    "px-3 py-2.5",
-                    c.align === "right" && "tnum text-right",
-                  )}
+                  className={cn("px-3 py-2.5", c.align === "right" && "tnum text-right")}
                 >
                   {c.render(row)}
                 </td>
@@ -66,7 +60,7 @@ export function DataTable<T>({
         </tbody>
         {footer && (
           <tfoot>
-            <tr className="border-t-2 border-border font-semibold">
+            <tr className="border-border border-t-2 font-semibold">
               {columns.map((c) => (
                 <td
                   key={c.key}

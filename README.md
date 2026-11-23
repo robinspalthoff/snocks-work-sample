@@ -11,11 +11,18 @@ des Unternehmens.
 ## 1. Das Problem
 
 Der Standardreport eines Shopsystems bucht eine Erstattung an dem Tag, an dem
-sie ausgeführt wird – nicht an dem Tag, an dem die zugehörige Bestellung
+sie verarbeitet wird – nicht an dem Tag, an dem die zugehörige Bestellung
 eingegangen ist. Nach einem Sales Event sind die Umsätze deshalb bereits
 gebucht, die Retouren aber noch nicht: Der Aktionsmonat sieht zu gut aus, der
 Folgemonat zu schlecht, und beide Monate führen zu falschen Entscheidungen
 über Rabatthöhe und Ad-Spend.
+
+Das ist keine Vermutung, sondern dokumentiertes Verhalten. Shopify schreibt im
+[Help Center zum Sales Report](https://help.shopify.com/en/manual/reports-and-analytics/shopify-reports/report-types/default-reports/sales-report):
+*„reversals display as a negative value for the day that they were processed"*.
+Von dort stammt auch die Definition, die dieses Dashboard übernimmt:
+`Net sales = gross sales − discounts − sales reversals`. Für Retouren nennt die
+Seite ausdrücklich das Verarbeitungsdatum, nicht das Bestelldatum.
 
 ## 2. Was die synthetischen Daten zeigen
 

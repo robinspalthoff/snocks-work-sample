@@ -1,48 +1,44 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, TreePalm } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NAV_GROUPS, NAV_ITEMS } from "./nav";
+import { NAV_GROUPS, NAV_ITEMS, PROFILE, SILENT_GROUPS } from "./nav";
 
+/**
+ * Sidebar und Hauptfenster teilen sich denselben Hintergrund; getrennt wird
+ * nur durch die Linie rechts. Die Leiste ist fixiert und scrollt nicht mit,
+ * der Einklapp-Schalter sitzt als kleines Icon auf genau dieser Linie.
+ */
 export function Sidebar({
   collapsed,
   onToggle,
+  width,
 }: {
   collapsed: boolean;
   onToggle: () => void;
+  width: number;
 }) {
   const pathname = usePathname();
 
   return (
     <aside
-      className={cn(
-        "hidden shrink-0 flex-col border-r border-border bg-card/60 transition-[width] duration-200 lg:flex",
-        collapsed ? "w-[68px]" : "w-[252px]",
-      )}
+      style={{ width }}
+      className="border-border bg-background fixed inset-y-0 left-0 z-30 hidden flex-col border-r transition-[width] duration-200 lg:flex"
     >
-      <div className="flex h-16 items-center gap-2 border-b border-border px-4">
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent text-sm font-bold text-white">
-          CM
-        </span>
-        {!collapsed && (
-          <span className="min-w-0 text-[13px] leading-tight font-semibold">
-            Contribution Margin
-            <span className="block text-[11px] font-normal text-muted-foreground">
-              Cockpit · Built for SNOCKS
-            </span>
-          </span>
-        )}
-      </div>
+      <Logo collapsed={collapsed} />
 
-      <nav className="flex-1 overflow-y-auto px-2 py-4">
+      <nav className="scrollbar-slim flex-1 overflow-y-auto px-3 py-2">
         {NAV_GROUPS.map((group) => {
           const items = NAV_ITEMS.filter((i) => i.group === group);
+          if (!items.length) return null;
+          const silent = SILENT_GROUPS.includes(group);
           return (
-            <div key={group} className="mb-5">
-              {!collapsed && (
-                <p className="mb-1.5 px-3 text-[10px] font-semibold tracking-[0.12em] text-subtle-foreground uppercase">
+            <div key={group} className={silent ? "mb-2" : "mb-5"}>
+              {!collapsed && !silent && (
+                <p className="text-subtle-foreground mb-1.5 px-3 text-[10px] font-semibold tracking-[0.14em] uppercase">
                   {group}
                 </p>
               )}
@@ -56,18 +52,16 @@ export function Sidebar({
                       <Link
                         href={item.href}
                         title={collapsed ? item.label : undefined}
+                        aria-current={active ? "page" : undefined}
                         className={cn(
-                          "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors",
+                          "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition-colors",
                           active
-                            ? "bg-accent-soft font-semibold text-accent-strong"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            ? "text-nav-active bg-white font-semibold shadow-[0_1px_2px_rgba(12,18,21,0.05)]"
+                            : "text-nav-idle hover:text-foreground hover:bg-white/60",
                           collapsed && "justify-center px-0",
                         )}
                       >
-                        {active && (
-                          <span className="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-r bg-accent" />
-                        )}
-                        <Icon className="size-4 shrink-0" strokeWidth={active ? 2.2 : 1.8} />
+                        <Icon className="size-[18px] shrink-0" strokeWidth={active ? 2.1 : 1.7} />
                         {!collapsed && <span className="truncate">{item.short}</span>}
                       </Link>
                     </li>
@@ -79,30 +73,111 @@ export function Sidebar({
         })}
       </nav>
 
+      <ProfileCard collapsed={collapsed} />
+
+      {/* Einklappen: kleines Icon auf der Trennlinie, nicht im Inhalt. */}
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-2 border-t border-border px-4 py-3 text-[12px] text-muted-foreground transition-colors hover:text-foreground"
         aria-label={collapsed ? "Navigation ausklappen" : "Navigation einklappen"}
+        title={collapsed ? "Navigation ausklappen" : "Navigation einklappen"}
+        className="border-border text-subtle-foreground hover:text-foreground absolute top-[76px] -right-3 z-40 grid size-6 place-items-center rounded-full border bg-white shadow-[0_1px_3px_rgba(12,18,21,0.1)] transition-colors"
       >
         {collapsed ? (
-          <PanelLeftOpen className="size-4" />
+          <PanelLeftOpen className="size-3.5" />
         ) : (
-          <>
-            <PanelLeftClose className="size-4" />
-            <span>Einklappen</span>
-          </>
+          <PanelLeftClose className="size-3.5" />
         )}
       </button>
     </aside>
   );
 }
 
-/** Mobile Navigation: horizontal scrollbare Chips unter dem Header. */
+function Logo({ collapsed }: { collapsed: boolean }) {
+  return (
+    <Link
+      href="/"
+      className={cn(
+        "flex h-16 shrink-0 items-center gap-2.5 px-5",
+        collapsed && "justify-center px-0",
+      )}
+    >
+      <TreePalm className="text-foreground size-6 shrink-0" strokeWidth={1.9} />
+      {!collapsed && (
+        <span className="min-w-0 text-[13px] leading-tight">
+          <span className="block font-bold tracking-[0.1em]">WORK SAMPLE</span>
+          <span className="text-subtle-foreground block text-[11.5px]">
+            Built for <span className="text-muted-foreground font-bold">SNOCKS</span>
+          </span>
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function ProfileCard({ collapsed }: { collapsed: boolean }) {
+  if (collapsed) {
+    return (
+      <div className="flex shrink-0 justify-center px-3 pb-4">
+        <Image
+          src={PROFILE.photo}
+          alt=""
+          width={36}
+          height={36}
+          className="size-9 rounded-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="shrink-0 px-3 pb-4">
+      <div className="rounded-2xl bg-white p-3 shadow-[0_1px_3px_rgba(12,18,21,0.06)]">
+        <div className="flex items-center gap-2.5">
+          <Image
+            src={PROFILE.photo}
+            alt=""
+            width={38}
+            height={38}
+            priority
+            className="size-[38px] shrink-0 rounded-full object-cover"
+          />
+          <span className="min-w-0">
+            <span className="block truncate text-[13px] font-semibold">{PROFILE.name}</span>
+            <span className="text-subtle-foreground block truncate text-[11.5px]">
+              {PROFILE.role}
+            </span>
+          </span>
+        </div>
+        <a
+          href={PROFILE.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-nav-active mt-3 flex items-center justify-center gap-2 rounded-xl py-2 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90"
+        >
+          {/* Animiertes GIF: next/image reicht es mit `unoptimized` unverändert
+              durch, sonst ginge die Animation beim Optimieren verloren. */}
+          <Image
+            src="/assets/upgrade.gif"
+            alt=""
+            width={20}
+            height={20}
+            unoptimized
+            loading="lazy"
+            className="size-5 rounded-full object-cover"
+          />
+          Let&rsquo;s talk
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/** Mobile Navigation: horizontal scrollbare Chips unter dem Logo. */
 export function MobileNav() {
   const pathname = usePathname();
   return (
-    <nav className="scrollbar-none flex gap-1.5 overflow-x-auto border-b border-border bg-card px-4 py-2.5 lg:hidden">
+    <nav className="border-border flex scrollbar-none gap-1.5 overflow-x-auto border-b px-4 py-2.5 lg:hidden">
       {NAV_ITEMS.map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         return (
@@ -112,7 +187,7 @@ export function MobileNav() {
             className={cn(
               "shrink-0 rounded-full border px-3 py-1.5 text-[12px] whitespace-nowrap transition-colors",
               active
-                ? "border-accent bg-accent-soft font-semibold text-accent-strong"
+                ? "border-nav-active bg-nav-active font-medium text-white"
                 : "border-border text-muted-foreground",
             )}
           >
@@ -121,5 +196,21 @@ export function MobileNav() {
         );
       })}
     </nav>
+  );
+}
+
+/** Schmale Kopfzeile nur für Mobile – ersetzt die entfallene Header-Leiste. */
+export function MobileBrandBar() {
+  return (
+    <div className="flex items-center gap-2.5 px-4 pt-4 lg:hidden">
+      <TreePalm className="text-foreground size-5" strokeWidth={1.9} />
+      <span className="text-[12px] leading-tight">
+        <span className="font-bold tracking-[0.1em]">WORK SAMPLE</span>
+        <span className="text-muted-foreground">
+          {" "}
+          · Built for <span className="text-muted-foreground font-bold">SNOCKS</span>
+        </span>
+      </span>
+    </div>
   );
 }

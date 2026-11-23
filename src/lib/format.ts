@@ -74,10 +74,7 @@ function fix(n: number, digits: number): string {
   });
 }
 
-const MONTHS = [
-  "Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
-  "Jul", "Aug", "Sep", "Okt", "Nov", "Dez",
-];
+const MONTHS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 
 /** "2026-11-22" → "22. Nov 2026" */
 export function dateLabel(iso: string): string {

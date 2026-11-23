@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { DataTable, type Column } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import { C } from "@/components/charts/chart-kit";
@@ -90,9 +90,7 @@ export default function DataQualityPage() {
       label: "Bestellungen ohne hinterlegte Landed Cost",
       severity: "warn",
       value: pct(dataQuality.missingCogs.share),
-      detail: `Hochgerechnet ${int(
-        dataQuality.missingCogs.orders,
-      )} Bestellungen mit ${eurCompact(
+      detail: `Hochgerechnet ${int(dataQuality.missingCogs.orders)} Bestellungen mit ${eurCompact(
         dataQuality.missingCogs.grossValue,
       )} Brutto-Umsatz. Diese Bestellungen erscheinen im CM1 zu gut, weil der Wareneinsatz fehlt.`,
       action:
@@ -124,7 +122,8 @@ export default function DataQualityPage() {
       value: Math.abs(waterfallDelta) < 1 ? "bestanden" : eur(waterfallDelta),
       detail:
         "Netto-Umsatz − COGS − variable Kosten − Marketing muss exakt dem CM3 entsprechen. Die Prüfung läuft über den gesamten Datenbestand.",
-      action: "Automatisch bei jedem Build – eine Abweichung bricht das Reporting, nicht erst der Abschluss.",
+      action:
+        "Automatisch bei jedem Build – eine Abweichung bricht das Reporting, nicht erst der Abschluss.",
     },
     {
       id: "convergence",
@@ -152,7 +151,7 @@ export default function DataQualityPage() {
         />
         <ul className="px-5 pb-5">
           {checks.map((c) => (
-            <li key={c.id} className="border-t border-border py-4 first:border-t-0 first:pt-0">
+            <li key={c.id} className="border-border border-t py-4 first:border-t-0 first:pt-0">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <SeverityIcon severity={c.severity} />
                 <h3 className="text-[13px] font-semibold">{c.label}</h3>
@@ -161,7 +160,7 @@ export default function DataQualityPage() {
                   style={{
                     color:
                       c.severity === "warn"
-                        ? C.warning
+                        ? C.warningInk
                         : c.severity === "ok"
                           ? C.positive
                           : undefined,
@@ -170,10 +169,10 @@ export default function DataQualityPage() {
                   {c.value}
                 </span>
               </div>
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground mt-1.5 text-[12.5px] leading-relaxed">
                 {c.detail}
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-subtle-foreground">
+              <p className="text-subtle-foreground mt-1 text-[12px] leading-relaxed">
                 <strong className="font-medium">Was ich täte:</strong> {c.action}
               </p>
             </li>
@@ -208,19 +207,24 @@ export default function DataQualityPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Annahmen je Kanal" subtitle="Provisionen und Gebührensätze." />
+          <CardHeader
+            title="Annahmen je Kanal"
+            subtitle="Provisionen und Gebührensätze."
+            info={
+              <>
+                Zahlarten-Mix im eigenen Shop:{" "}
+                {PAYMENT_MIX.map(
+                  (p) => `${p.method} ${pct(p.share, 0)} @ ${pct(p.feeRate, 2)}`,
+                ).join(" · ")}{" "}
+                = {pct(meta.paymentFeeBlended, 2)} gewichtet.
+              </>
+            }
+          />
           <DataTable
             columns={channelAssumptionColumns}
             rows={CHANNELS.map((c) => ({ channel: c, ...CHANNEL_ASSUMPTIONS[c] }))}
             minWidth={620}
           />
-          <CardNote>
-            Zahlarten-Mix im eigenen Shop:{" "}
-            {PAYMENT_MIX.map((p) => `${p.method} ${pct(p.share, 0)} @ ${pct(p.feeRate, 2)}`).join(
-              " · ",
-            )}{" "}
-            = {pct(meta.paymentFeeBlended, 2)} gewichtet.
-          </CardNote>
         </Card>
 
         <Card>
@@ -233,7 +237,10 @@ export default function DataQualityPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Sales Events" subtitle="Rabatt, Absatz-Uplift und Retouren-Aufschlag." />
+          <CardHeader
+            title="Sales Events"
+            subtitle="Rabatt, Absatz-Uplift und Retouren-Aufschlag."
+          />
           <DataTable columns={eventColumns} rows={SALES_EVENTS} minWidth={620} />
         </Card>
       </div>
@@ -241,7 +248,10 @@ export default function DataQualityPage() {
       <Card className="mt-4 px-5 py-5">
         <h2 className="text-[13px] font-semibold">Stückkosten und Rahmenwerte</h2>
         <dl className="mt-3 grid gap-x-8 gap-y-2 text-[12.5px] sm:grid-cols-2">
-          <Fact label="Fulfillment je Bestellung" value={eurCents(UNIT_COSTS.fulfillmentPerOrder)} />
+          <Fact
+            label="Fulfillment je Bestellung"
+            value={eurCents(UNIT_COSTS.fulfillmentPerOrder)}
+          />
           <Fact
             label="Retourenbearbeitung je Retoure"
             value={eurCents(UNIT_COSTS.returnHandlingPerReturn)}
@@ -263,9 +273,7 @@ export default function DataQualityPage() {
             )} Einzelbestellungen`}
           />
         </dl>
-        <p className="mt-4 text-[12px] leading-relaxed text-subtle-foreground">
-          {DATA_DISCLAIMER}
-        </p>
+        <p className="text-subtle-foreground mt-4 text-[12px] leading-relaxed">{DATA_DISCLAIMER}</p>
       </Card>
     </div>
   );
@@ -273,7 +281,7 @@ export default function DataQualityPage() {
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-border/60 pb-1.5">
+    <div className="border-border/60 flex items-baseline justify-between gap-4 border-b pb-1.5">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="tnum font-medium">{value}</dd>
     </div>
@@ -282,10 +290,22 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function SeverityIcon({ severity }: { severity: Severity }) {
   if (severity === "ok")
-    return <CheckCircle2 className="size-4 shrink-0" style={{ color: C.positive }} aria-label="bestanden" />;
+    return (
+      <CheckCircle2
+        className="size-4 shrink-0"
+        style={{ color: C.positive }}
+        aria-label="bestanden"
+      />
+    );
   if (severity === "warn")
-    return <AlertTriangle className="size-4 shrink-0" style={{ color: C.warning }} aria-label="Hinweis" />;
-  return <Info className="size-4 shrink-0 text-muted-foreground" aria-label="Information" />;
+    return (
+      <AlertTriangle
+        className="size-4 shrink-0"
+        style={{ color: C.warning }}
+        aria-label="Hinweis"
+      />
+    );
+  return <Info className="text-muted-foreground size-4 shrink-0" aria-label="Information" />;
 }
 
 // ─── Glossar ────────────────────────────────────────────────────────────
@@ -314,7 +334,8 @@ const GLOSSARY: GlossaryEntry[] = [
   },
   {
     term: "CM2",
-    formula: "CM1 − Fulfillment − Versand − Retourenbearbeitung − Payment-Gebühren − Marktplatzgebühren",
+    formula:
+      "CM1 − Fulfillment − Versand − Retourenbearbeitung − Payment-Gebühren − Marktplatzgebühren",
     note: "Alle Kosten, die direkt an einer Bestellung hängen.",
   },
   { term: "CM3", formula: "CM2 − Marketingkosten", note: "Marketing als Ad-Spend des Zeitraums." },
@@ -338,7 +359,11 @@ const GLOSSARY: GlossaryEntry[] = [
     formula: "Erstattungen / Brutto-Umsatz",
     note: "Wertbasiert, nicht stückbasiert.",
   },
-  { term: "AOV", formula: "Netto-Umsatz / Anzahl Bestellungen", note: "Nach Rabatt und Erstattungen." },
+  {
+    term: "AOV",
+    formula: "Netto-Umsatz / Anzahl Bestellungen",
+    note: "Nach Rabatt und Erstattungen.",
+  },
   {
     term: "Reported vs. Real Delta",
     formula: "KPI nach Erstattungsdatum − KPI nach Bestell-Kohorte",
@@ -347,13 +372,22 @@ const GLOSSARY: GlossaryEntry[] = [
 ];
 
 const glossaryColumns: Column<GlossaryEntry>[] = [
-  { key: "term", header: "Kennzahl", width: "150px", render: (r) => <span className="font-medium">{r.term}</span> },
+  {
+    key: "term",
+    header: "Kennzahl",
+    width: "150px",
+    render: (r) => <span className="font-medium">{r.term}</span>,
+  },
   {
     key: "formula",
     header: "Formel",
-    render: (r) => <code className="text-[11.5px] text-foreground">{r.formula}</code>,
+    render: (r) => <code className="text-foreground text-[11.5px]">{r.formula}</code>,
   },
-  { key: "note", header: "Anmerkung", render: (r) => <span className="text-muted-foreground">{r.note}</span> },
+  {
+    key: "note",
+    header: "Anmerkung",
+    render: (r) => <span className="text-muted-foreground">{r.note}</span>,
+  },
 ];
 
 // ─── Annahmetabellen ────────────────────────────────────────────────────
@@ -383,10 +417,16 @@ const brandAssumptionColumns: Column<BrandRow>[] = [
   { key: "growth", header: "Wachstum", align: "right", render: (r) => pct(r.growth2026, 0) },
 ];
 
-type ChannelRow = { channel: string } & (typeof CHANNEL_ASSUMPTIONS)[keyof typeof CHANNEL_ASSUMPTIONS];
+type ChannelRow = {
+  channel: string;
+} & (typeof CHANNEL_ASSUMPTIONS)[keyof typeof CHANNEL_ASSUMPTIONS];
 
 const channelAssumptionColumns: Column<ChannelRow>[] = [
-  { key: "channel", header: "Kanal", render: (r) => <span className="font-medium">{r.channel}</span> },
+  {
+    key: "channel",
+    header: "Kanal",
+    render: (r) => <span className="font-medium">{r.channel}</span>,
+  },
   { key: "share", header: "Umsatzanteil", align: "right", render: (r) => pct(r.revenueShare, 0) },
   { key: "fee", header: "Provision", align: "right", render: (r) => pct(r.marketplaceFeeRate, 0) },
   { key: "pay", header: "Payment", align: "right", render: (r) => pct(r.paymentFeeRate, 2) },
@@ -396,7 +436,11 @@ const channelAssumptionColumns: Column<ChannelRow>[] = [
     align: "right",
     render: (r) => `${r.returnRateDelta >= 0 ? "+" : "−"}${pct(Math.abs(r.returnRateDelta), 0)}`,
   },
-  { key: "note", header: "Anmerkung", render: (r) => <span className="text-muted-foreground">{r.note}</span> },
+  {
+    key: "note",
+    header: "Anmerkung",
+    render: (r) => <span className="text-muted-foreground">{r.note}</span>,
+  },
 ];
 
 type MarketRow = { market: string } & (typeof MARKET_ASSUMPTIONS)[keyof typeof MARKET_ASSUMPTIONS];
@@ -408,7 +452,7 @@ const marketAssumptionColumns: Column<MarketRow>[] = [
     render: (r) => (
       <span>
         <span className="font-medium">{r.market}</span>{" "}
-        <span className="text-[11px] text-subtle-foreground">{r.label}</span>
+        <span className="text-subtle-foreground text-[11px]">{r.label}</span>
       </span>
     ),
   },
@@ -431,7 +475,7 @@ const eventColumns: Column<(typeof SALES_EVENTS)[number]>[] = [
     key: "label",
     header: "Event",
     render: (r) => (
-      <span className={r.isBlackWeek ? "font-semibold text-accent-strong" : "font-medium"}>
+      <span className={r.isBlackWeek ? "text-accent-strong font-semibold" : "font-medium"}>
         {r.label}
       </span>
     ),
@@ -446,7 +490,12 @@ const eventColumns: Column<(typeof SALES_EVENTS)[number]>[] = [
     ),
   },
   { key: "disc", header: "Rabatt", align: "right", render: (r) => pct(r.discountRate, 0) },
-  { key: "up", header: "Absatz", align: "right", render: (r) => `+${Math.round(r.volumeUplift * 100)} %` },
+  {
+    key: "up",
+    header: "Absatz",
+    align: "right",
+    render: (r) => `+${Math.round(r.volumeUplift * 100)} %`,
+  },
   {
     key: "ret",
     header: "Retouren",
@@ -461,8 +510,17 @@ const eventColumns: Column<(typeof SALES_EVENTS)[number]>[] = [
 type DriftRow = Record<string, number | string> & { month: string };
 
 const driftColumns: Column<DriftRow>[] = [
-  { key: "month", header: "Monat", render: (r) => <span className="font-medium">{monthLabel(r.month)}</span> },
-  { key: "aown", header: "Amazon eigen", align: "right", render: (r) => eurCompact(Number(r.Amazon_own)) },
+  {
+    key: "month",
+    header: "Monat",
+    render: (r) => <span className="font-medium">{monthLabel(r.month)}</span>,
+  },
+  {
+    key: "aown",
+    header: "Amazon eigen",
+    align: "right",
+    render: (r) => eurCompact(Number(r.Amazon_own)),
+  },
   {
     key: "aset",
     header: "Amazon Settlement",
@@ -474,12 +532,17 @@ const driftColumns: Column<DriftRow>[] = [
     header: "Δ",
     align: "right",
     render: (r) => (
-      <span style={{ color: C.warning }}>
+      <span style={{ color: C.warningInk }}>
         {pct(safeDiv(Number(r.Amazon_settlement) - Number(r.Amazon_own), Number(r.Amazon_own)), 2)}
       </span>
     ),
   },
-  { key: "zown", header: "Zalando eigen", align: "right", render: (r) => eurCompact(Number(r.Zalando_own)) },
+  {
+    key: "zown",
+    header: "Zalando eigen",
+    align: "right",
+    render: (r) => eurCompact(Number(r.Zalando_own)),
+  },
   {
     key: "zset",
     header: "Zalando Settlement",
@@ -491,8 +554,11 @@ const driftColumns: Column<DriftRow>[] = [
     header: "Δ",
     align: "right",
     render: (r) => (
-      <span style={{ color: C.warning }}>
-        {pct(safeDiv(Number(r.Zalando_settlement) - Number(r.Zalando_own), Number(r.Zalando_own)), 2)}
+      <span style={{ color: C.warningInk }}>
+        {pct(
+          safeDiv(Number(r.Zalando_settlement) - Number(r.Zalando_own), Number(r.Zalando_own)),
+          2,
+        )}
       </span>
     ),
   },

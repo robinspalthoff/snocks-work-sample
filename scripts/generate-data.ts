@@ -185,7 +185,8 @@ const refundDelayPmf: number[] = (() => {
 
 /** Durchschnittlich erstatteter Anteil einer retournierten Bestellung. */
 const AVG_REFUNDED_FRACTION =
-  (1 - PARTIAL_REFUND_SHARE) +
+  1 -
+  PARTIAL_REFUND_SHARE +
   PARTIAL_REFUND_SHARE * ((PARTIAL_REFUND_RANGE.min + PARTIAL_REFUND_RANGE.max) / 2);
 
 // ─── Kombinationen ──────────────────────────────────────────────────────
@@ -264,8 +265,7 @@ for (let ci = 0; ci < C; ci++) {
     const season = MONTH_SEASONALITY[monthIndex(iso)] * WEEKDAY_SEASONALITY[weekdayIndex(iso)];
     const uplift = 1 + (ev?.volumeUplift ?? 0);
 
-    const gross =
-      BASE_DAILY * combo.weight * trend * season * uplift * noise(DAILY_NOISE_SD);
+    const gross = BASE_DAILY * combo.weight * trend * season * uplift * noise(DAILY_NOISE_SD);
 
     const discountRate = ev?.discountRate ?? BASE_DISCOUNT_RATE;
     const discount = gross * discountRate;
@@ -319,7 +319,10 @@ const scale = NET_REVENUE_2025_TARGET / net2025;
 
 /** TikTok-Anteil wächst über den Zeitraum, Meta gibt entsprechend ab. */
 function marketingShares(iso: string): Record<MarketingChannel, number> {
-  const progress = Math.min(1, Math.max(0, daysBetween(DATA_START, iso) / daysBetween(DATA_START, DATA_END)));
+  const progress = Math.min(
+    1,
+    Math.max(0, daysBetween(DATA_START, iso) / daysBetween(DATA_START, DATA_END)),
+  );
   const shares: Record<string, number> = {};
   for (const mc of MARKETING_CHANNELS) {
     let s = MARKETING_ASSUMPTIONS[mc].spendShare;
@@ -399,7 +402,10 @@ for (let di = 0; di < days.length; di++) {
     const attrGross = spend * ma.reportedRoas * noise(0.07);
     const attrDiscount = attrGross * Math.min(0.45, discountRate * ma.discountFactor);
     const attrNet = attrGross - attrDiscount;
-    const returnRate = Math.min(0.65, ma.returnRate * (1 + (ev?.returnRateUplift ?? 0)) * noise(0.05));
+    const returnRate = Math.min(
+      0.65,
+      ma.returnRate * (1 + (ev?.returnRateUplift ?? 0)) * noise(0.05),
+    );
     const attrRefund = attrNet * returnRate;
     const attrOrders = attrNet / br.aovShop;
     const attrCogsShipped = attrGross * br.cogsRate;
@@ -578,7 +584,9 @@ write("marketing-window-daily.json", {
   channels: MARKETING_CHANNELS,
   metrics: MKT_METRICS,
   combos: mktKeys,
-  data: mktKeys.map((_, k) => MKT_METRICS.map((m) => windowIdx.map((di) => Math.round(mktVal(m, k, di))))),
+  data: mktKeys.map((_, k) =>
+    MKT_METRICS.map((m) => windowIdx.map((di) => Math.round(mktVal(m, k, di)))),
+  ),
 });
 
 // ─── 5. Kohorten ────────────────────────────────────────────────────────
@@ -859,7 +867,7 @@ for (let ci = 0; ci < combos.length; ci++) {
  * und Währungsrundungen.
  */
 const marketplaceDrift = months.map((ym) => {
-  const row: Record<string, number> = { };
+  const row: Record<string, number> = {};
   for (const ch of ["Amazon", "Zalando"] as Channel[]) {
     let own = 0;
     for (let ci = 0; ci < combos.length; ci++) {
@@ -919,9 +927,7 @@ write("meta.json", {
   netRevenueTotal: Math.round(netAll),
   refundWindowDays: REFUND_WINDOW_DAYS,
   unitCosts: UNIT_COSTS,
-  paymentFeeBlended: Number(
-    PAYMENT_MIX.reduce((a, p) => a + p.share * p.feeRate, 0).toFixed(4),
-  ),
+  paymentFeeBlended: Number(PAYMENT_MIX.reduce((a, p) => a + p.share * p.feeRate, 0).toFixed(4)),
   shippingBlended: Number(
     MARKETS.reduce(
       (a, m) => a + MARKET_ASSUMPTIONS[m].revenueShare * MARKET_ASSUMPTIONS[m].shippingCost,

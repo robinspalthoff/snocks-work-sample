@@ -4,14 +4,16 @@ import { useCallback, useMemo, useState } from "react";
 import { BRANDS, CHANNELS, FOOTER_NOTE, MARKETS } from "@/config/assumptions";
 import { FilterContext, defaultFilters, type FilterState } from "@/lib/filters";
 import { months } from "@/data/datasets";
-import { MobileNav, Sidebar } from "./sidebar";
-import { TopBar } from "./top-bar";
+import { MobileBrandBar, MobileNav, Sidebar } from "./sidebar";
 
 const DIMENSION_VALUES = {
   brands: BRANDS as readonly string[],
   channels: CHANNELS as readonly string[],
   markets: MARKETS as readonly string[],
 } as const;
+
+const SIDEBAR_WIDTH = 256;
+const SIDEBAR_WIDTH_COLLAPSED = 72;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -21,20 +23,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setFilters((f) => ({ ...f, from, to, presetId }));
   }, []);
 
-  const toggle = useCallback(
-    (dimension: "brands" | "channels" | "markets", value: string) => {
-      setFilters((f) => {
-        const current = f[dimension] as string[];
-        const next = current.includes(value)
-          ? current.filter((v) => v !== value)
-          : [...DIMENSION_VALUES[dimension]].filter((v) => current.includes(v) || v === value);
-        // Leere Auswahl wäre inhaltsleer – dann wieder auf „alle“.
-        const resolved = next.length ? next : [...DIMENSION_VALUES[dimension]];
-        return { ...f, [dimension]: resolved } as FilterState;
-      });
-    },
-    [],
-  );
+  /**
+   * Auswahllogik einer Dimension.
+   *
+   * Aus dem Zustand „Alle“ heraus bedeutet ein Klick: zeige NUR diesen Wert.
+   * Das ist die Erwartung, wenn jemand auf eine Marke klickt. Erst danach
+   * verhält sich die Leiste als Mehrfachauswahl – weitere Klicks nehmen
+   * Werte dazu oder heraus. Eine leere Auswahl wäre inhaltsleer und fällt
+   * deshalb auf „Alle“ zurück.
+   */
+  const toggle = useCallback((dimension: "brands" | "channels" | "markets", value: string) => {
+    setFilters((f) => {
+      const all = DIMENSION_VALUES[dimension];
+      const current = f[dimension] as string[];
+      const isAll = current.length === all.length;
+
+      let next: string[];
+      if (isAll) {
+        next = [value];
+      } else if (current.includes(value)) {
+        next = current.filter((v) => v !== value);
+      } else {
+        next = all.filter((v) => current.includes(v) || v === value);
+      }
+
+      return { ...f, [dimension]: next.length ? next : [...all] } as FilterState;
+    });
+  }, []);
 
   const setAll = useCallback((dimension: "brands" | "channels" | "markets") => {
     setFilters((f) => ({ ...f, [dimension]: [...DIMENSION_VALUES[dimension]] }) as FilterState);
@@ -54,18 +69,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     [filters, setPeriod, toggle, setAll, reset, isDefault],
   );
 
+  const width = collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH;
+
   return (
     <FilterContext.Provider value={value}>
-      <div className="flex min-h-screen">
-        <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
-          <MobileNav />
-          <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">{children}</main>
-          <footer className="border-t border-border px-4 py-4 text-[11px] text-subtle-foreground sm:px-6 lg:px-8">
-            {FOOTER_NOTE}
-          </footer>
-        </div>
+      <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} width={width} />
+
+      <div
+        className="shell-main flex min-h-screen flex-col transition-[padding] duration-200"
+        style={{ "--sidebar-pad": `${width}px` } as React.CSSProperties}
+      >
+        <MobileBrandBar />
+        <MobileNav />
+
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">{children}</main>
+
+        <footer className="text-subtle-foreground px-4 py-5 text-[11px] sm:px-6 lg:px-10">
+          {FOOTER_NOTE}
+        </footer>
       </div>
     </FilterContext.Provider>
   );

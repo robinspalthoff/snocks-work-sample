@@ -2,10 +2,11 @@ import {
   BadgeEuro,
   CalendarRange,
   GitCompareArrows,
+  House,
   LayoutDashboard,
   Megaphone,
-  ShieldCheck,
   Scale,
+  ShieldCheck,
   UserRound,
 } from "lucide-react";
 
@@ -14,11 +15,24 @@ export interface NavItem {
   label: string;
   short: string;
   icon: typeof LayoutDashboard;
-  group: "Analyse" | "Planung" | "Grundlagen";
+  group: NavGroup;
 }
 
+export const NAV_GROUPS = ["Start", "Analyse", "Planung", "Grundlagen"] as const;
+export type NavGroup = (typeof NAV_GROUPS)[number];
+
+/** Gruppen ohne sichtbare Überschrift – „Start“ steht für sich. */
+export const SILENT_GROUPS: NavGroup[] = ["Start"];
+
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Overview", short: "Overview", icon: LayoutDashboard, group: "Analyse" },
+  { href: "/", label: "Home", short: "Home", icon: House, group: "Start" },
+  {
+    href: "/overview",
+    label: "Overview",
+    short: "Overview",
+    icon: LayoutDashboard,
+    group: "Analyse",
+  },
   {
     href: "/shopify-vs-realitaet",
     label: "Shopify vs. Realität",
@@ -47,13 +61,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: CalendarRange,
     group: "Planung",
   },
-  {
-    href: "/soll-ist",
-    label: "Soll-Ist",
-    short: "Soll-Ist",
-    icon: Scale,
-    group: "Planung",
-  },
+  { href: "/soll-ist", label: "Soll-Ist", short: "Soll-Ist", icon: Scale, group: "Planung" },
   {
     href: "/datenqualitaet",
     label: "Datenqualität & KPI-Definitionen",
@@ -70,4 +78,11 @@ export const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-export const NAV_GROUPS = ["Analyse", "Planung", "Grundlagen"] as const;
+export const PROFILE = {
+  name: "Robin Spalthoff",
+  role: "Financial Controller",
+  photo: "/assets/robin.jpg",
+  linkedin: "https://www.linkedin.com/in/robinspalthoff/",
+  github: "https://github.com/robinspalthoff/",
+  repo: "https://github.com/robinspalthoff/snocks-work-sample",
+} as const;

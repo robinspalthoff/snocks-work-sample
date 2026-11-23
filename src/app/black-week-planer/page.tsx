@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import { AXIS, C, GRID, TooltipCard } from "@/components/charts/chart-kit";
 import { FilterBar } from "@/components/filters/filter-bar";
-import { Card, CardHeader, CardNote } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { BLACK_WEEK_2025, BLACK_WEEK_2026 } from "@/config/assumptions";
@@ -73,7 +73,10 @@ export default function BlackWeekPlannerPage() {
   const sensitivity = useMemo(() => {
     const out: { discount: number; cm3: number }[] = [];
     for (let d = 0; d <= 0.6001; d += 0.01) {
-      out.push({ discount: Math.round(d * 1000) / 10, cm3: runScenario(baseline, { ...inputs, discountRate: d }).cm3 });
+      out.push({
+        discount: Math.round(d * 1000) / 10,
+        cm3: runScenario(baseline, { ...inputs, discountRate: d }).cm3,
+      });
     }
     return out;
   }, [baseline, inputs]);
@@ -101,15 +104,15 @@ export default function BlackWeekPlannerPage() {
           breakEven !== null ? (
             <>
               Mit den Vorjahreswerten liegt der CM3 der Black Week 2026 bei{" "}
-              <strong className="font-semibold text-foreground">{eurCompact(base.cm3)}</strong>.
+              <strong className="text-foreground font-semibold">{eurCompact(base.cm3)}</strong>.
               Break-even wird bei einem Rabatt von{" "}
-              <strong className="font-semibold text-foreground">{pct(breakEven)}</strong> erreicht –
+              <strong className="text-foreground font-semibold">{pct(breakEven)}</strong> erreicht –
               jeder Prozentpunkt darüber kostet bares Geld.
             </>
           ) : (
             <>
               Mit den aktuellen Einstellungen liegt der CM3 bei{" "}
-              <strong className="font-semibold text-foreground">{eurCompact(base.cm3)}</strong>. In
+              <strong className="text-foreground font-semibold">{eurCompact(base.cm3)}</strong>. In
               dieser Konstellation gibt es keinen Rabattsatz, der die Aktion ins Plus bringt –
               Ad-Spend oder Retourenquote müssen sich bewegen.
             </>
@@ -132,12 +135,22 @@ export default function BlackWeekPlannerPage() {
                 <button
                   type="button"
                   onClick={() => setCustom(null)}
-                  className="flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-accent-strong"
+                  className="text-muted-foreground hover:text-accent-strong flex items-center gap-1.5 text-[12px]"
                 >
                   <RotateCcw className="size-3.5" />
                   Vorjahr
                 </button>
               )
+            }
+
+            info={
+              <>
+                Vorbelegt mit der Black Week 2025 ({dateLabel(BLACK_WEEK_2025.start)} –{" "}
+                {dateLabel(BLACK_WEEK_2025.end)}), hochgerechnet mit dem Wachstum{" "}
+                {pct(baseline.growthFactor - 1)} aus den Ist-Daten Jan–Okt. Rabatt und Absatz sind
+                bewusst getrennt regelbar – die Preiselastizität ist die Annahme, über die man im
+                Planungsmeeting streiten sollte.
+              </>
             }
           />
           <div className="space-y-5 px-5 pb-5">
@@ -182,13 +195,6 @@ export default function BlackWeekPlannerPage() {
               onChange={(v) => set({ adSpend: v })}
             />
           </div>
-          <CardNote>
-            Vorbelegt mit der Black Week 2025 ({dateLabel(BLACK_WEEK_2025.start)} –{" "}
-            {dateLabel(BLACK_WEEK_2025.end)}), hochgerechnet mit dem Wachstum{" "}
-            {pct(baseline.growthFactor - 1)} aus den Ist-Daten Jan–Okt. Rabatt und Absatz sind
-            bewusst getrennt regelbar – die Preiselastizität ist die Annahme, über die man im
-            Planungsmeeting streiten sollte.
-          </CardNote>
         </Card>
 
         {/* ─── Ergebnis ───────────────────────────────────────────────── */}
@@ -220,7 +226,9 @@ export default function BlackWeekPlannerPage() {
                   ? `${ppAbs(breakEven - inputs.discountRate)} Puffer`
                   : "kein Rabatt rettet es"
               }
-              deltaTone={breakEven !== null && breakEven > inputs.discountRate ? "positive" : "negative"}
+              deltaTone={
+                breakEven !== null && breakEven > inputs.discountRate ? "positive" : "negative"
+              }
             />
           </div>
 
@@ -251,7 +259,13 @@ export default function BlackWeekPlannerPage() {
                       active && payload?.length ? (
                         <TooltipCard
                           title={`${payload[0].payload.discount} % Rabatt`}
-                          rows={[{ label: "CM3", value: eur(Number(payload[0].payload.cm3)), color: C.real }]}
+                          rows={[
+                            {
+                              label: "CM3",
+                              value: eur(Number(payload[0].payload.cm3)),
+                              color: C.real,
+                            },
+                          ]}
                         />
                       ) : null
                     }
@@ -284,8 +298,16 @@ export default function BlackWeekPlannerPage() {
         <CardHeader
           title="Base, Best und Worst nebeneinander"
           subtitle="Best: 3 pp weniger Rabatt, 25 % mehr Absatz, 3 pp weniger Retouren, 10 % weniger Spend. Worst: 4 pp mehr Rabatt, 25 % weniger Absatz, 5 pp mehr Retouren, 15 % mehr Spend."
+
+          info={
+            <>
+              Zum Vergleich die tatsächliche Black Week 2025 nach allen Retouren:{" "}
+              {eurCompact(actual.netRevenue)} Netto-Umsatz, {eurCompact(actual.cm3)} CM3 (
+              {pct(actual.cm3Margin)}), Retourenquote {pct(actual.returnRate)}.
+            </>
+          }
         />
-        <div className="grid gap-px bg-border md:grid-cols-3">
+        <div className="bg-border grid gap-px md:grid-cols-3">
           {(
             [
               ["Worst Case", worst, false],
@@ -293,8 +315,11 @@ export default function BlackWeekPlannerPage() {
               ["Best Case", best, false],
             ] as const
           ).map(([label, s, highlight]) => (
-            <div key={label} className={highlight ? "bg-accent-soft/40 px-5 py-4" : "bg-card px-5 py-4"}>
-              <p className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+            <div
+              key={label}
+              className={highlight ? "bg-accent-soft/40 px-5 py-4" : "bg-card px-5 py-4"}
+            >
+              <p className="text-muted-foreground text-[11px] font-semibold tracking-wide uppercase">
                 {label}
               </p>
               <p
@@ -303,7 +328,7 @@ export default function BlackWeekPlannerPage() {
               >
                 {eurCompact(s.cm3)}
               </p>
-              <p className="tnum mt-1 text-[12px] text-muted-foreground">
+              <p className="tnum text-muted-foreground mt-1 text-[12px]">
                 {pct(s.cm3Margin)} CM3-Marge
               </p>
               <dl className="mt-3 space-y-1 text-[12px]">
@@ -317,21 +342,16 @@ export default function BlackWeekPlannerPage() {
             </div>
           ))}
         </div>
-        <CardNote>
-          Zum Vergleich die tatsächliche Black Week 2025 nach allen Retouren: {eurCompact(actual.netRevenue)}{" "}
-          Netto-Umsatz, {eurCompact(actual.cm3)} CM3 ({pct(actual.cm3Margin)}), Retourenquote{" "}
-          {pct(actual.returnRate)}.
-        </CardNote>
       </Card>
 
       {/* ─── Easter Egg ────────────────────────────────────────────────── */}
       {achievement && (
         <div
           role="status"
-          className="animate-toast-in fixed right-5 bottom-5 z-50 flex items-center gap-3 rounded-xl border border-accent/40 bg-card px-4 py-3 shadow-[0_10px_40px_rgba(26,26,26,0.15)]"
+          className="animate-toast-in border-accent/40 bg-card fixed right-5 bottom-5 z-50 flex items-center gap-3 rounded-xl border px-4 py-3 shadow-[0_10px_40px_rgba(26,26,26,0.15)]"
         >
-          <span className="grid size-9 place-items-center rounded-lg bg-accent-soft">
-            <Trophy className="size-4 text-accent-strong" />
+          <span className="bg-accent-soft grid size-9 place-items-center rounded-lg">
+            <Trophy className="text-accent-strong size-4" />
           </span>
           <span className="text-[12.5px]">
             <strong className="block font-semibold">Achievement unlocked</strong>
@@ -376,7 +396,10 @@ function Slider({
     <div>
       <div className="mb-1.5 flex items-baseline justify-between">
         <label className="text-[12px] font-medium">{label}</label>
-        <span className="tnum text-[13px] font-semibold" style={{ color: changed ? C.real : undefined }}>
+        <span
+          className="tnum text-[13px] font-semibold"
+          style={{ color: changed ? C.real : undefined }}
+        >
           {format(value)}
         </span>
       </div>
@@ -390,9 +413,7 @@ function Slider({
         className="w-full accent-[#cc5b8b]"
         aria-label={label}
       />
-      <p className="mt-1 text-[10.5px] text-subtle-foreground">
-        Vorjahr: {format(baselineValue)}
-      </p>
+      <p className="text-subtle-foreground mt-1 text-[10.5px]">Vorjahr: {format(baselineValue)}</p>
     </div>
   );
 }
