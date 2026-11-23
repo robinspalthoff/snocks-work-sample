@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, PanelLeftOpen, TreePalm } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, Sparkles, TreePalm } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_GROUPS, NAV_ITEMS, PROFILE, SILENT_GROUPS } from "./nav";
 
@@ -119,57 +119,65 @@ function ProfileCard({ collapsed }: { collapsed: boolean }) {
   if (collapsed) {
     return (
       <div className="flex shrink-0 justify-center px-3 pb-4">
-        <Image
-          src={PROFILE.photo}
-          alt=""
-          width={36}
-          height={36}
-          className="size-9 rounded-full object-cover"
-        />
+        <span className="relative">
+          <Image
+            src={PROFILE.photo}
+            alt=""
+            width={36}
+            height={36}
+            className="size-9 rounded-full object-cover"
+          />
+          <StatusDot />
+        </span>
       </div>
     );
   }
 
   return (
     <div className="shrink-0 px-3 pb-4">
-      <div className="rounded-2xl bg-white p-3 shadow-[0_1px_3px_rgba(12,18,21,0.06)]">
+      <div className="profile-card rounded-2xl p-3">
         <div className="flex items-center gap-2.5">
-          <Image
-            src={PROFILE.photo}
-            alt=""
-            width={38}
-            height={38}
-            priority
-            className="size-[38px] shrink-0 rounded-full object-cover"
-          />
+          <span className="relative shrink-0">
+            <Image
+              src={PROFILE.photo}
+              alt=""
+              width={38}
+              height={38}
+              priority
+              className="size-[38px] rounded-full object-cover"
+            />
+            <StatusDot />
+          </span>
           <span className="min-w-0">
             <span className="block truncate text-[13px] font-semibold">{PROFILE.name}</span>
-            <span className="text-subtle-foreground block truncate text-[11.5px]">
-              {PROFILE.role}
-            </span>
+            <span className="text-muted-foreground block truncate text-[11px]">{PROFILE.role}</span>
           </span>
         </div>
+
+        {/* Führt bewusst nicht zum Lebenslauf. */}
         <a
-          href={PROFILE.linkedin}
+          href={PROFILE.upgrade}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-nav-active mt-3 flex items-center justify-center gap-2 rounded-xl py-2 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90"
+          className="glass-btn mt-3 h-11 w-full py-0 pr-4 pl-1.5 text-[13px] font-medium text-[#2b2f31]"
         >
-          {/* Animiertes GIF: next/image reicht es mit `unoptimized` unverändert
-              durch, sonst ginge die Animation beim Optimieren verloren. */}
-          <Image
-            src="/assets/upgrade.gif"
-            alt=""
-            width={20}
-            height={20}
-            unoptimized
-            loading="lazy"
-            className="size-5 rounded-full object-cover"
-          />
-          Let&rsquo;s talk
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#2b2f31] shadow-[0_0_6px_rgba(0,0,0,0.28)]">
+            <Sparkles className="size-4 text-white" strokeWidth={2} />
+          </span>
+          Upgrade Now
         </a>
       </div>
     </div>
+  );
+}
+
+/** Grüner Punkt am Avatar – „gerade erreichbar". */
+function StatusDot() {
+  return (
+    <span
+      aria-hidden
+      className="absolute right-0 bottom-0 size-[11px] rounded-full border-2 border-white bg-[#22c55e]"
+    />
   );
 }
 

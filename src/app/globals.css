@@ -24,7 +24,7 @@
 
   /* Navigation: aktiv schwarz, inaktiv grau – kein Akzentton. */
   --color-nav-active: #0c1215;
-  --color-nav-idle: #999b9d;
+  --color-nav-idle: #7a7d7f;
 
   /* Akzent – ausschließlich für Daten: die „Realität“-Linie, Highlights
    * in Charts und das, was die Aussage trägt. Nicht für Navigation. */
@@ -80,6 +80,118 @@ body {
     background: var(--color-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * Profilkarte und Liquid-Glass-Button
+ * Adaptiert aus dem mitgelieferten CSS-Beispiel. Weggelassen ist der
+ * globale contrast()-Filter des Originals: er hätte auch die Schrift
+ * daneben überzeichnet. Die Glasoptik tragen hier die Inset-Lichter,
+ * der weiche Verlauf darüber und der Backdrop-Blur.
+ * ─────────────────────────────────────────────────────────────────────── */
+.profile-card {
+  background: linear-gradient(155deg, #ececed 0%, #dfe0e1 55%, #d7d8da 100%);
+  border: 1px solid rgba(12, 18, 21, 0.07);
+  box-shadow: 0 1px 2px rgba(12, 18, 21, 0.06);
+}
+
+.glass-btn {
+  --r: 9999px;
+  --tr: 16%;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: var(--r);
+  border: 1px double rgba(51, 51, 51, 0.08);
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  box-shadow:
+    inset 2px -2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset -2px 2px 1px -1px rgba(255, 255, 255, 0.9),
+    inset 6px -6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset -6px 6px 1px -6px rgba(255, 255, 255, 0.55),
+    inset 0 0 2px rgba(0, 0, 0, 0.45),
+    0 4px 8px rgba(0, 0, 0, 0.14);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Lichtkante: heller Verlauf von zwei Ecken, weich ausgeblendet. */
+.glass-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r);
+  filter: blur(6px);
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    transparent var(--tr),
+    transparent calc(100% - var(--tr)),
+    rgba(255, 255, 255, 0.85) 100%
+  );
+}
+
+.glass-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 2px -2px 1px -1px rgba(255, 255, 255, 1),
+    inset -2px 2px 1px -1px rgba(255, 255, 255, 1),
+    inset 0 0 2px rgba(0, 0, 0, 0.4),
+    0 7px 14px rgba(0, 0, 0, 0.16);
+}
+
+.glass-btn:active {
+  transform: scale(0.97);
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+ * Umlaufendes Leuchten für die Karte mit der Kernaussage.
+ * ─────────────────────────────────────────────────────────────────────── */
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes glow-spin {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.glow-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--glow-angle),
+    transparent 0%,
+    transparent 58%,
+    rgba(204, 91, 139, 0.85) 74%,
+    rgba(143, 99, 200, 0.85) 86%,
+    transparent 100%
+  );
+  animation: glow-spin 5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-card::before {
+    animation: none;
+    background: rgba(204, 91, 139, 0.45);
   }
 }
 

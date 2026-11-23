@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BadgeEuro, CalendarRange, GitCompareArrows } from "lucide-react";
+import { GithubLogo, LinkedinLogo } from "@/components/brand/logos";
 import { PROFILE } from "@/components/layout/nav";
 import {
   BLACK_WEEK_2025,
@@ -134,6 +135,28 @@ export default function HomePage() {
 
       {/* ─── Rahmen zum Projekt ─────────────────────────────────────────── */}
       <aside className="flex flex-col gap-3">
+        {/* Die Kernaussage steht oben und trägt ein umlaufendes Leuchten –
+            sie ist der Grund, warum es diese Arbeitsprobe gibt. */}
+        <div className="glow-card rounded-[var(--radius)]">
+          <div className="card px-5 py-5">
+            <h2 className="text-[13px] font-semibold">Die Kernaussage</h2>
+            <p className="text-muted-foreground mt-2.5 text-[12.5px] leading-relaxed">
+              Shopify bucht eine Retoure an dem Tag, an dem sie verarbeitet wird – nicht an dem der
+              Bestellung. Die Black-Week-Kohorte {dateLabel(BLACK_WEEK_2025.start)} verliert dadurch
+              über {REFUND_WINDOW_DAYS} Tage{" "}
+              <strong className="text-foreground font-semibold">{ppAbs(bw.decay)}</strong> Marge,
+              sichtbar erst im Folgemonat.
+            </p>
+            <Link
+              href="/shopify-vs-realitaet"
+              className="text-accent-strong mt-3 inline-flex items-center gap-1 text-[12px] font-medium hover:underline"
+            >
+              Beleg ansehen
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+        </div>
+
         <div className="card px-5 py-5">
           <div className="flex items-center gap-3">
             <Image
@@ -145,18 +168,22 @@ export default function HomePage() {
             />
             <span className="min-w-0">
               <span className="block text-[14px] font-semibold">{PROFILE.name}</span>
-              <span className="text-muted-foreground block text-[12px]">
-                Bewerbung · {PROFILE.role}
-              </span>
+              <span className="text-muted-foreground block text-[12px]">{PROFILE.role}</span>
             </span>
           </div>
           <p className="text-muted-foreground mt-4 text-[12.5px] leading-relaxed">
-            Ich denke in Deckungsbeiträgen und Periodenabgrenzung – und baue die Auswertung selbst,
-            statt sie zu beauftragen und auf den nächsten Sprint zu warten.
+            Acht Jahre an der Schnittstelle von Finance Operations und Automatisierung – zuletzt als
+            externe Finanzfunktion für Shopify-Marken: Monatsabschluss, OSS, KPI-Reporting. Ein
+            Dashboard wie dieses habe ich dort schon einmal gegen die Shopify-API gebaut, weil die
+            Standardreports die Frage nach der echten Marge nicht beantwortet haben.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <SmallLink href={PROFILE.linkedin}>LinkedIn</SmallLink>
-            <SmallLink href={PROFILE.repo}>Quellcode</SmallLink>
+            <SmallLink href={PROFILE.linkedin} icon={<LinkedinLogo className="size-3.5" />}>
+              LinkedIn
+            </SmallLink>
+            <SmallLink href={PROFILE.repo} icon={<GithubLogo className="size-3.5" />}>
+              Quellcode
+            </SmallLink>
             <Link
               href="/ueber-diese-arbeitsprobe"
               className="border-border text-muted-foreground hover:border-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
@@ -182,24 +209,6 @@ export default function HomePage() {
             festem Seed. Keine echten Zahlen der SNOCKS GmbH.
           </p>
         </div>
-
-        <div className="card px-5 py-5">
-          <h2 className="text-[13px] font-semibold">Die Kernaussage</h2>
-          <p className="text-muted-foreground mt-2.5 text-[12.5px] leading-relaxed">
-            Shopify bucht eine Retoure an dem Tag, an dem sie verarbeitet wird – nicht an dem der
-            Bestellung. Die Black-Week-Kohorte {dateLabel(BLACK_WEEK_2025.start)} verliert dadurch
-            über {REFUND_WINDOW_DAYS} Tage{" "}
-            <strong className="text-foreground font-semibold">{ppAbs(bw.decay)}</strong> Marge,
-            sichtbar erst im Folgemonat.
-          </p>
-          <Link
-            href="/shopify-vs-realitaet"
-            className="text-accent-strong mt-3 inline-flex items-center gap-1 text-[12px] font-medium hover:underline"
-          >
-            Beleg ansehen
-            <ArrowRight className="size-3.5" />
-          </Link>
-        </div>
       </aside>
     </div>
   );
@@ -216,14 +225,23 @@ function Fact({ label, value, compact }: { label: string; value: string; compact
   );
 }
 
-function SmallLink({ href, children }: { href: string; children: React.ReactNode }) {
+function SmallLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="border-border text-muted-foreground hover:border-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
+      className="border-border text-muted-foreground hover:border-foreground hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] transition-colors"
     >
+      {icon}
       {children}
       <ArrowUpRight className="size-3" />
     </a>
@@ -233,21 +251,30 @@ function SmallLink({ href, children }: { href: string; children: React.ReactNode
 /** Dekorative Marke – weich, zurückhaltend, ohne Aussage. */
 function Starburst() {
   return (
-    <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden className="opacity-90">
+    <svg width="140" height="140" viewBox="0 0 140 140" aria-hidden className="overflow-visible">
       <defs>
-        <radialGradient id="sb" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#cc5b8b" stopOpacity="0.55" />
-          <stop offset="45%" stopColor="#8f63c8" stopOpacity="0.32" />
-          <stop offset="100%" stopColor="#06638c" stopOpacity="0.1" />
+        <radialGradient id="sb-core" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#f2c7da" />
+          <stop offset="32%" stopColor="#cc5b8b" stopOpacity="0.8" />
+          <stop offset="68%" stopColor="#8f63c8" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#06638c" stopOpacity="0.08" />
         </radialGradient>
+        <filter id="sb-soft" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
       </defs>
+
+      {/* Weicher Schein hinter dem Stern */}
       <path
-        d="M66 2c3 30 10 46 24 56-14 10-21 26-24 56-3-30-10-46-24-56C56 48 63 32 66 2z"
-        fill="url(#sb)"
+        d="M70 6C70 41 99 70 134 70C99 70 70 99 70 134C70 99 41 70 6 70C41 70 70 41 70 6Z"
+        fill="url(#sb-core)"
+        filter="url(#sb-soft)"
+        opacity="0.75"
       />
+      {/* Der Stern selbst */}
       <path
-        d="M2 66c30-3 46-10 56-24 10 14 26 21 56 24-30 3-46 10-56 24C48 76 32 69 2 66z"
-        fill="url(#sb)"
+        d="M70 6C70 41 99 70 134 70C99 70 70 99 70 134C70 99 41 70 6 70C41 70 70 41 70 6Z"
+        fill="url(#sb-core)"
       />
     </svg>
   );

@@ -80,7 +80,10 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const PROFILE = {
   name: "Robin Spalthoff",
-  role: "Financial Controller",
+  role: "Strategy & Finance Operations",
+  /** Zielt auf das GIF – das kleine Osterei hinter „Upgrade Now". */
+  upgrade:
+    "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjdkMzQ2Z2sxMHFudW5keDRqbmE1MnFxY29yN2ExcGt3NDU2aDdlayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/clnORRzuaBV7rNisCP/giphy.gif",
   photo: "/assets/robin.jpg",
   linkedin: "https://www.linkedin.com/in/robinspalthoff/",
   github: "https://github.com/robinspalthoff/",
