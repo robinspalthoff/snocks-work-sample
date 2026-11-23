@@ -172,10 +172,8 @@ export default function HomePage() {
             </span>
           </div>
           <p className="text-muted-foreground mt-4 text-[12.5px] leading-relaxed">
-            Acht Jahre an der Schnittstelle von Finance Operations und Automatisierung – zuletzt als
-            externe Finanzfunktion für Shopify-Marken: Monatsabschluss, OSS, KPI-Reporting. Ein
-            Dashboard wie dieses habe ich dort schon einmal gegen die Shopify-API gebaut, weil die
-            Standardreports die Frage nach der echten Marge nicht beantwortet haben.
+            Amazon Operations, Start-up-Gründerteam, eigene Beratung: Ich kenne Zahlen vom Hallenboden und aus der Unternehmersicht. 
+            Mit mir bekommt ihr keinen klassischen Controller, sondern jemanden, der Marge, Logistikkosten und KPIs versteht und die Auswertung gleich selbst baut.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <SmallLink href={PROFILE.linkedin} icon={<LinkedinLogo className="size-3.5" />}>

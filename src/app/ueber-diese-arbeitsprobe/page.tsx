@@ -11,33 +11,6 @@ const LINKS = {
   repo: "https://github.com/robinspalthoff/snocks-work-sample",
 };
 
-/**
- * Bewusst Fragen statt eines 90-Tage-Plans: Ohne Kenntnis der
- * Systemlandschaft wäre jeder Plan geraten. Die Fragen zeigen, worauf
- * ich zuerst schauen würde – und warum.
- */
-const FIRST_QUESTIONS = [
-  {
-    question: "Wie sind Retouren heute im Reporting verankert?",
-    body: "Landen Erstattungen bei der Ursprungsbestellung oder am Erstattungsdatum? Gibt es für offene Kohorten eine Retouren-Rückstellung? Davon hängt ab, ob ein Monatsabschluss nach 30 Tagen belastbar ist oder erst nach 90.",
-  },
-  {
-    question: "Welche Kostenarten liegen bereits je Bestellung vor?",
-    body: "Landed Cost je SKU, Fulfillment, Versand je Markt, Payment-Gebühren, Marktplatzprovision: Was davon ist gepflegt, was wird geschätzt, was fehlt ganz? Ohne diese Schicht ist jeder CM2 eine Hausnummer mit Nachkommastellen.",
-  },
-  {
-    question: "Woran hängt heute die Marketing-Entscheidung?",
-    body: "Am ROAS aus den Plattformen oder an einem Deckungsbeitrag je Kanal? Und wer entscheidet im Zweifel – Marketing oder Finance? Die Antwort sagt mehr über die Organisation als über das Reporting.",
-  },
-  {
-    question: "Wo endet das Data Warehouse und wo beginnt Excel?",
-    body: "Jede manuelle Brücke zwischen System und Bericht ist beides: ein Kandidat für Automatisierung und ein Risiko im Abschluss. Ich würde sie zuerst sichtbar machen, bevor ich irgendetwas umbaue.",
-  },
-  {
-    question: "Welche Entscheidung ist zuletzt an fehlenden Zahlen gescheitert?",
-    body: "Die ehrlichste Frage von allen. Sie zeigt schneller als jedes Systemdiagramm, wo das Reporting wirklich weh tut – und womit man anfangen sollte.",
-  },
-];
 
 export default function AboutPage() {
   return (
@@ -118,27 +91,6 @@ export default function AboutPage() {
         </Card>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader
-          title="Was ich zuerst wissen müsste"
-          subtitle="Kein 90-Tage-Plan – den könnte ich von außen nur raten. Stattdessen die Fragen, mit denen ich anfangen würde."
-        />
-        <ol className="space-y-0 px-5 pb-5">
-          {FIRST_QUESTIONS.map((item, i) => (
-            <li
-              key={item.question}
-              className="border-border border-t py-4 first:border-t-0 first:pt-0"
-            >
-              <h3 className="text-[13.5px] font-semibold">
-                {i + 1}. {item.question}
-              </h3>
-              <p className="text-muted-foreground mt-1.5 text-[13px] leading-relaxed">
-                {item.body}
-              </p>
-            </li>
-          ))}
-        </ol>
-      </Card>
 
       <Card className="px-5 py-5">
         <h2 className="text-[13px] font-semibold">Hinweis zu den Daten</h2>

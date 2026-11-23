@@ -81,7 +81,7 @@ export function Sidebar({
         onClick={onToggle}
         aria-label={collapsed ? "Navigation ausklappen" : "Navigation einklappen"}
         title={collapsed ? "Navigation ausklappen" : "Navigation einklappen"}
-        className="border-border text-subtle-foreground hover:text-foreground absolute top-[76px] -right-3 z-40 grid size-6 place-items-center rounded-full border bg-white shadow-[0_1px_3px_rgba(12,18,21,0.1)] transition-colors"
+        className="border-border text-subtle-foreground hover:text-foreground absolute top-[50%] -right-3 z-40 grid size-6 place-items-center rounded-full border bg-white shadow-[0_1px_3px_rgba(12,18,21,0.1)] transition-colors"
       >
         {collapsed ? (
           <PanelLeftOpen className="size-3.5" />
