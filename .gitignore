@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Lokale Editor-/Agent-Konfiguration
 .claude/
+
+# Arbeitsprobe-PDF (Upload-Artefakt, nicht Teil des Projekts)
+Arbeitsprobe-Robin-Spalthoff.pdf
